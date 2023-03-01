@@ -54,6 +54,12 @@ enum States
     s_F1,
     s_F2,
     s_J1,
+    s_M1,
+    s_M2,
+    s_H1,
+    s_H2,
+    s_H3,
+    s_H4,
     s_Error,
     s_Stop
 };
@@ -126,6 +132,7 @@ protected:
     int reg_num_str;
     char register_ratio;
     int cur_state;
+    TokenClass reg_token;
 
     int state_number; 
     int class_number; 
@@ -165,6 +172,11 @@ protected:
     int F2b();
     int F2c();
     int F2_add();
+
+    int H1();
+    int H2();
+    int H3();
+    int H3a();
 
     int M1();
     int M2();
@@ -338,7 +350,21 @@ public:
         //table[s_F1][LEX_CHARACTER] = &StateM::F2b; 
         table[s_F1][LEX_SPACE] = &StateM::F2c;
 
+        table[s_M1][LEX_CHARACTER] = &StateM::M1;
         
+        table[s_H1][LEX_CHARACTER] = &StateM::C1b;
+        table[s_H1][LEX_SPACE] = &StateM::H1;
+
+        table[s_H2][LEX_SPACE] = &StateM::H3;
+        table[s_H2][LEX_CHARACTER] =&StateM::C1b;
+
+        table[s_H3][LEX_CHARACTER] = &StateM::H3a;
+        table[s_H3][LEX_SPACE] = &StateM::H3;
+
+        table[s_H4][LEX_SPACE] = &StateM::A0;
+        table[s_H4][LEX_LF] = &StateM::A0a;
+        table[s_H4][LEX_SEMICOLON] = &StateM::D1;
+
         /*
         table[s_A0][LEX_SPACE] = &StateM::A1;
         table[s_A0][LEX_L_BRACKET] = &StateM::G1a;

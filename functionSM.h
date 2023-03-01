@@ -113,7 +113,6 @@ int StateM::B1a()
 // создание константы 
 int StateM::B1c() 
 {
-    //std::cout << "++++" << std::endl;
     std::cout << reg_const << std::endl;
     vecToken.emplace_back(data_token{CONSTANT, reg_const});
     return s_A0;
@@ -157,8 +156,64 @@ int StateM::C1a() {
     {
     case 'd':
         discovery_register = 1;
+        return s_M1;
         break;
-    
+    case 'a':
+        discovery_register = 3;
+        return s_M1;
+        break;
+    case 'u':
+        discovery_register = 4;
+        return s_M1;
+        break;
+    case 'h':
+        discovery_register = 7;
+        return s_M1;
+        break;
+    case 'l':
+        discovery_register = 10;
+        return s_M1;
+        break;
+    case 'f':
+        discovery_register = 12;
+        return s_M1;
+        break;
+    case 'i':
+        discovery_register = 14;
+        return s_M1;
+        break;
+    case 'n':
+        discovery_register = 15;
+        return s_M1;
+        break;
+    case 't':
+        discovery_register = 18;
+        return s_M1;
+        break;
+    case 'e':
+        discovery_register = 21;
+        return s_M1;
+        break;
+    case 'p':
+        discovery_register = 26;
+        return s_M1;
+        break;
+    case 'g':
+        discovery_register = 28;
+        return s_M1;
+        break;
+    case 's':
+        discovery_register = 31;
+        return s_M1;
+    case 'c':
+        discovery_register = 36;
+        return s_M1;
+    case 'b':
+        discovery_register = 39;
+        return s_M1;
+    case 'r':
+        discovery_register = 43;
+        return s_M1;
     default:
         return s_C1;
         break;
@@ -286,7 +341,250 @@ int StateM::F2c() {
     return s_A0;
 }
 
+int StateM::H1()
+{
+    vecToken.emplace_back(reg_token);
+    return s_A0;
+}
 
+int StateM::H3()
+{
+    return s_H3;
+}
+
+int StateM::H3a()
+{
+    vecToken.emplace_back(END_SWITCH);
+    return s_H4;
+}
+
+int StateM::M1()
+{
+    reg_name.push_back(s.value);
+    if(discovery_register==1 && s.value=='i')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register ==2 && s.value == 'm')
+    {
+        reg_token = DIM;
+        return s_H1;
+    }
+    else if(discovery_register==3 && s.value =='s')
+    {
+        reg_token = AS;
+        return s_H1;
+    }
+    else if(discovery_register == 4 && s.value == 'i')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 5 && s.value == 'n')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 6 && s.value == 't')
+    {
+        reg_token = UINT;
+        return s_H1;
+    }
+    else if(discovery_register == 7 && s.value == 'a')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 8 && s.value == 's')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 9 && s.value == 'h')
+    {
+        reg_token = HASH;
+        return s_H1;
+    }
+    else if(discovery_register == 10 && s.value == 'e')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 11 && s.value == 't')
+    {
+        reg_token = LET;
+        return s_H1;
+    }
+    else if(discovery_register == 12 && s.value == 'o')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 13 && s.value == 'r')
+    {
+        reg_token = FOR;
+        return s_H1;
+    }
+    else if(discovery_register == 14 && s.value == 'n')
+    {
+        reg_token = IN;
+        return s_H1;
+    }
+    else if(discovery_register == 15 && s.value == 'e')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 16 && s.value == 'x')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 17 && s.value == 't')
+    {
+        reg_token = NEXT;
+        return s_H1;
+    }
+    else if(discovery_register == 14 && s.value == 'f')
+    {
+        reg_token = IF;
+        return s_H1;
+    }
+    else if(discovery_register == 18 && s.value == 'h')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 19 && s.value == 'e')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 20 && s.value == 'n')
+    {
+        reg_token = THEN;
+        return s_H1;
+    }
+    else if(discovery_register == 21 && s.value == 'l')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 22 && s.value == 's')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 23 && s.value == 'e')
+    {
+        reg_token = ELSE;
+        return s_H1;
+    }
+    else if(discovery_register == 10 && s.value == 'o')
+    {
+        discovery_register = 24;
+    }
+    else if(discovery_register == 24 && s.value == 'a')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 25 && s.value == 'd')
+    {
+        reg_token = LOAD;
+        return s_H1;
+    }
+    else if(discovery_register == 26 && s.value == 'u')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 27 && s.value == 't')
+    {
+        reg_token = PUT;
+        return s_H1;
+    }
+    else if(discovery_register == 28 && s.value == 'o')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 29 && s.value == 't')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 30 && s.value == 'o')
+    {
+        reg_token = GOTO;
+        return s_H1;
+    }
+    else if(discovery_register == 31 && s.value == 'w')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 32 && s.value == 'i')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 33 && s.value == 't')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 34 && s.value == 'c')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 35 && s.value == 'h')
+    {
+        reg_token = SWITCH;
+        return s_H1;
+    }
+    else if(discovery_register == 36 && s.value == 'a')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 37 && s.value == 's')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 38 && s.value == 'e')
+    {
+        reg_token = CASE;
+        return s_H1;
+    }
+    else if(discovery_register == 39 && s.value == 'r')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 40 && s.value == 'e')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 41 && s.value == 'a')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 42 && s.value == 'k')
+    {
+        reg_token = BREAK;
+        return s_H1;
+    }
+    else if(discovery_register == 43 && s.value == 'a')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 44 && s.value == 'i')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 45 && s.value == 's')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 46 && s.value == 'e')
+    {
+        reg_token = RAISE;
+        return s_H1;
+    }
+    else if(discovery_register == 21 && s.value == 'n')
+    {
+        discovery_register = 51;
+    }
+    else if(discovery_register == 51 && s.value == 'd')
+    {
+        return s_H2;
+    } 
+    else 
+    {
+        return s_C1;
+    }
+    return s_M1;
+}
 
 /*
 int StateM::Z2a()

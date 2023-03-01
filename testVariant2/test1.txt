@@ -1,3 +1,4 @@
 var1 = 34;
-
+let x = 10;
 dim v2 as type;
+end switch  

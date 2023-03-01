@@ -73,6 +73,86 @@ void PrintVec(const list<data_token> &obj)
             cout.width(15);
             cout << "END_MARKER ";
             break;
+        case LET: 
+            cout.width(15);
+            cout << "LET";
+            break;
+        case DIM:
+            cout.width(15);
+            cout << "LET";
+            break;
+        case AS:
+            cout.width(15);
+            cout << "AS";
+            break;
+        case FOR:
+            cout.width(15);
+            cout << "FOR";
+            break;
+        case UINT:
+            cout.width(15);
+            cout << "TYPE UINT";
+            break;
+        case HASH:
+            cout.width(15);
+            cout << "TYPE HASH";
+            break;
+        case IN:
+            cout.width(15);
+            cout << "IN";
+            break;
+        case NEXT:
+            cout.width(15);
+            cout << "NEXT";
+            break;
+        case IF:
+            cout.width(15);
+            cout << "IF";
+            break;
+        case THEN:
+            cout.width(15);
+            cout << "THEN";
+            break;
+        case ELSE:
+            cout.width(15);
+            cout << "ELSE";
+            break;
+        case LOAD:  
+            cout.width(15);
+            cout << "LOAD";
+            break;
+        case PUT:   
+            cout.width(15);
+            cout << "PUT";
+            break;
+        case GOTO:
+            cout.width(15);
+            cout << "GOTO";
+            break;
+        case SWITCH:
+            cout.width(15);
+            cout << "SWITCH";
+            break;
+        case CASE:
+            cout.width(15);
+            cout << "CASE";
+            break;
+        case BREAK:
+            cout.width(15);
+            cout << "BREAK";
+            break;
+        case END_SWITCH:
+            cout.width(15);
+            cout << "END_SWITCH";
+            break;
+        case RAISE:
+            cout.width(15);
+            cout << "RAISE";
+            break;
+        case COMMENT:   
+            cout.width(15);
+            cout << "COMMENT";
+            break;
         case ATTITUDE:
             cout.width(15);
             cout << "ATTITUDE ";
