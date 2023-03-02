@@ -148,7 +148,6 @@ int StateM::B1i() {
     return F1();
 }
 
-
 int StateM::C1a() {
     reg_name.clear();
     reg_name.push_back(s.value);
@@ -214,6 +213,9 @@ int StateM::C1a() {
     case 'r':
         discovery_register = 43;
         return s_M1;
+    case '_':
+        discovery_register = 100;
+        return s_M1;
     default:
         return s_C1;
         break;
@@ -251,7 +253,33 @@ int StateM::C1g() {
     return A0a();
 }
 
+int StateM::C1k() {
+    C1d();
+    return R1();
+}
 
+int StateM::C1l(){
+    C1d();
+    switch(s.value)
+    {
+    case '+':
+        vecToken.emplace_back(BIN_SUM);
+        break;
+    case '-':
+        vecToken.emplace_back(BIN_SUB);
+        break;
+    case '*':
+        vecToken.emplace_back(BIN_MOD);
+        break;
+    case '/':
+        vecToken.emplace_back(BIN_DIV);
+        break;
+    case '%':
+        vecToken.emplace_back(BIN_MOD);
+        break;
+    }
+    return s_A0;
+}
 
 int StateM::G1() 
 {
@@ -277,7 +305,6 @@ int StateM::G1()
         vecToken.emplace_back(BIN_MOD);   
         break;
     }
-
     return s_A0;
 }
 
@@ -285,6 +312,12 @@ int StateM::G1()
 int StateM::F1() {
     register_ratio = s.value;
     return s_F1;
+}
+
+int StateM::F2b()
+{
+    F2_add();
+    return C1a();
 }
 
 int StateM::F2() {
@@ -347,6 +380,12 @@ int StateM::H1()
     return s_A0;
 }
 
+int StateM::H1a() 
+{
+    H1();
+    return D1();
+}
+
 int StateM::H3()
 {
     return s_H3;
@@ -354,8 +393,70 @@ int StateM::H3()
 
 int StateM::H3a()
 {
-    vecToken.emplace_back(END_SWITCH);
+    if(s.value == 's')
+    {
+        discovery_register = 1;
+        return s_H4;
+    }
+    return s_Error;
+}
+
+int StateM::H4() 
+{
+    if(discovery_register == 1 && s.value == 'w') {
+        ++discovery_register;
+    } else if( discovery_register == 2 && s.value == 'i') {
+        ++discovery_register;
+    } else if(discovery_register == 3 && s.value == 't') {
+        ++discovery_register;
+    } else if(discovery_register == 4 && s.value == 'c') {
+        ++discovery_register;
+    } else if(discovery_register == 5 && s.value == 'h') {
+        return s_H5;
+    } else {
+        return s_Error;
+    }
     return s_H4;
+}
+
+int StateM::H5()
+{
+    vecToken.emplace_back(END_SWITCH);
+    return s_A0;
+}
+
+int StateM::H5a()
+{
+    vecToken.emplace_back(END_SWITCH);
+    return A0a();
+}
+
+int StateM::H5b()
+{
+    vecToken.emplace_back(END_SWITCH);
+    return D1();
+}
+
+int StateM::G1d()
+{
+    return s_G1a;
+}
+
+int StateM::G1a()
+{
+    return s_G1a;
+}
+
+int StateM::G1b()
+{
+    vecToken.emplace_back(COMMENT);
+    return s_A0;
+}
+
+int StateM::G1c()
+{
+    ++reg_num_str;
+    return s_G1a;
 }
 
 int StateM::M1()
@@ -388,15 +489,19 @@ int StateM::M1()
         reg_token = UINT;
         return s_H1;
     }
-    else if(discovery_register == 7 && s.value == 'a')
+    else if(discovery_register == 100 && s.value == 'h')
     {
         ++discovery_register;
     }
-    else if(discovery_register == 8 && s.value == 's')
+    else if(discovery_register == 101 && s.value == 'a')
     {
         ++discovery_register;
     }
-    else if(discovery_register == 9 && s.value == 'h')
+    else if(discovery_register == 102 && s.value == 's')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 103 && s.value == 'h')
     {
         reg_token = HASH;
         return s_H1;
@@ -579,6 +684,173 @@ int StateM::M1()
     {
         return s_H2;
     } 
+    else if(discovery_register == 36 && s.value == 'o')
+    {
+        discovery_register = 55;
+    }
+    else if(discovery_register == 55 && s.value == 'm')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 56 && s.value == 'm')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 57 && s.value == 'e')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 58 && s.value == 'n')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 59 && s.value == 't')
+    {
+        return s_G1;
+    }
+    else if(discovery_register == 4 && s.value == 'n')
+    {
+        discovery_register = 60;
+    }
+    else if(discovery_register == 60 && s.value == 'i')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 61 && s.value == 'o')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 62 && s.value == 'n')
+    {
+        reg_token = UNION;
+        return s_H1;
+    }
+    else if(discovery_register == 7 && s.value =='a')
+    {
+        discovery_register = 63;
+    }
+    else if(discovery_register == 63 && s.value == 's')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 64 && s.value == 'h')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 65 && s.value == '_')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 66 && s.value == 'i')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 67 && s.value == 'n')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 68 && s.value == 't')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 69 && s.value == 'e')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 70 && s.value == 'r')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 71 && s.value == 's')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 72 && s.value == 'e')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 73 && s.value == 'c')
+    {
+        reg_token = HASH_INTERSEC;
+        return s_H1;
+    }
+    else if(discovery_register ==2 && s.value == 'f')
+    {
+        discovery_register = 74;
+    }
+    else if(discovery_register ==74 && s.value == 'f')
+    {
+        reg_token = DIFF;
+        return s_H1;
+    }
+    else if(discovery_register == 31 && s.value == 'i')
+    {
+        discovery_register = 75;
+    }
+    else if(discovery_register == 75 && s.value == 'm')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 76 && s.value == 'd')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 77 && s.value == 'i')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 78 && s.value == 'f')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 79 && s.value == 'f')
+    {
+        reg_token = SIMDIFF;
+        return s_H1;
+    }
+    else if(discovery_register==3 && s.value =='c')
+    {
+        discovery_register = 80;
+    }
+    else if(discovery_register==80 && s.value =='c')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register==81 && s.value =='e')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register==82 && s.value =='s')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register==83 && s.value =='s')
+    {
+        reg_token = ACCESS;
+        return s_H1;
+    }
+    else if(discovery_register == 26 && s.value == 'o')
+    {
+        discovery_register = 84;
+    }
+    else if(discovery_register == 84 && s.value == 'w')
+    {
+        reg_token = POW;
+        return s_H1;
+    }
+    else if(discovery_register == 66 && s.value == 'a')
+    {
+        discovery_register = 85;
+    }
+    else if(discovery_register == 85 && s.value == 'd')
+    {
+        ++discovery_register;
+    }
+    else if(discovery_register == 86 && s.value == 'd')
+    {
+        reg_token = HASH_ADD;
+        return s_H1;
+    }
     else 
     {
         return s_C1;
@@ -586,7 +858,54 @@ int StateM::M1()
     return s_M1;
 }
 
+int StateM::R1()
+{
+    if(s.value == '(')
+    {
+        vecToken.emplace_back(LEFT_BRACKET);
+    }
+    else if(s.value == ')')
+    {
+        vecToken.emplace_back(RIGHT_BRACKET);
+    }
+    return s_A0;
+}
+
+int StateM::R1a()
+{
+    vecToken.emplace_back(reg_token);
+    return R1();
+}
+
+int StateM::T1()
+{
+    return s_T1;
+}
+
+int StateM::T1a()
+{
+    reg_const = (s.value - '0');
+    return s_T1a; 
+}
+
+int StateM::T1b()
+{
+    reg_const = reg_const* 10 + (s.value - '0');
+    return s_T1a;
+}
+
+int StateM::T2()
+{
+    vecToken.emplace_back(LABLE,reg_const);
+    return s_A0;
+}
+
 /*
+int StateM::B1a()
+{
+    reg_const = reg_const* 10 + (s.value - '0');
+    return s_B1;
+}
 int StateM::Z2a()
 {
     return s_Z2;

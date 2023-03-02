@@ -79,7 +79,7 @@ void PrintVec(const list<data_token> &obj)
             break;
         case DIM:
             cout.width(15);
-            cout << "LET";
+            cout << "DIM";
             break;
         case AS:
             cout.width(15);
@@ -152,6 +152,48 @@ void PrintVec(const list<data_token> &obj)
         case COMMENT:   
             cout.width(15);
             cout << "COMMENT";
+            break;
+        case LEFT_BRACKET:
+            cout.width(15);
+            cout << "LEFT_BRACKET";
+            break;
+        case RIGHT_BRACKET:
+            cout.width(15);
+            cout << "RIGHT_BRACKET";
+            break;
+        case LABLE:
+            cout.width(15);
+            cout << "LABLE";
+            cout.width(10);
+            cout<< ":"<<any_cast<int>(val); 
+            break;
+        case UNION:
+            cout.width(15);
+            cout << "UNION";
+            break;
+        case HASH_INTERSEC:
+            cout.width(15);
+            cout << "HASH_INTERSEC";
+            break;
+        case DIFF:
+            cout.width(15);
+            cout << "DIFF";
+            break;
+        case SIMDIFF:
+            cout.width(15);
+            cout << "SIMDIFF";
+            break;
+        case ACCESS:
+            cout.width(15);
+            cout << "ACCESS";
+            break;
+        case POW:
+            cout.width(15);
+            cout << "POW";
+            break;
+        case HASH_ADD:
+            cout.width(15);
+            cout << "HASH_ADD";
             break;
         case ATTITUDE:
             cout.width(15);

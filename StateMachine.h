@@ -60,6 +60,11 @@ enum States
     s_H2,
     s_H3,
     s_H4,
+    s_H5,
+    s_G1,
+    s_G1a,
+    s_T1,
+    s_T1a,
     s_Error,
     s_Stop
 };
@@ -151,6 +156,7 @@ protected:
     int B1s();
     int B1h();
     int B1i();
+    int C1k();
 
     int C1a();
     int C1b();  
@@ -161,6 +167,7 @@ protected:
     int C1g();
     int C1h();
     int C1i();  
+    int C1l();
 
     int D1();
 
@@ -174,14 +181,30 @@ protected:
     int F2_add();
 
     int H1();
+    int H1a();
     int H2();
     int H3();
     int H3a();
+    int H4();
+    int H5();
+    int H5a();
+    int H5b();
+
+    int G1d();
+    int G1a();
+    int G1b();
+    int G1c();
 
     int M1();
     int M2();
     
+    int R1();
+    int R1a();
 
+    int T1();
+    int T1a();
+    int T1b();
+    int T2();
     
   /*  int A0b();
     int A0c();
@@ -322,10 +345,13 @@ public:
         table[s_A0][LEX_SPACE] = &StateM::A0; //пропуск пробелов
         table[s_A0][LEX_LF] = &StateM::A0a; //перевод строки, регистр строки +1
         table[s_A0][LEX_SEMICOLON] = &StateM::D1; //создание лексемы ;
-        table[s_A0][LEX_DIGIT] = &StateM::B1;   // создание строки
+        table[s_A0][LEX_DIGIT] = &StateM::B1;   // создание числа
         table[s_A0][LEX_AR_OPERATION] = &StateM::G1;
         table[s_A0][LEX_ATTITUDE] = &StateM::F1;
         table[s_A0][LEX_CHARACTER] = &StateM::C1a;
+        table[s_A0][LEX_L_BRACKET] = &StateM::R1;
+        table[s_A0][LEX_R_BRACKET] = &StateM::R1;
+        table[s_A0][LEX_COLON] = &StateM::T1;
 
         table[s_B1][LEX_DIGIT] = &StateM::B1a;
         table[s_B1][LEX_SPACE] = &StateM::B1c;
@@ -341,29 +367,61 @@ public:
         table[s_C1][LEX_ATTITUDE] = &StateM::C1e;
         table[s_C1][LEX_SEMICOLON] = &StateM::C1f;
         table[s_C1][LEX_LF] = &StateM::C1g;
+        table[s_C1][LEX_L_BRACKET] = &StateM::C1k;
+        table[s_C1][LEX_R_BRACKET] = &StateM::C1k;
+        table[s_C1][LEX_AR_OPERATION] = &StateM::C1l;
         //table[s_C1][LEFT_BRACKET] = &StateM::C1h;
         //table[s_C1][RIGHT_BRACKET] = &StateM::C1i;
     
 
         table[s_F1][LEX_ATTITUDE] = &StateM::F2; // двухсимвольный знак отношения 
         table[s_F1][LEX_DIGIT] = &StateM::F2a;
-        //table[s_F1][LEX_CHARACTER] = &StateM::F2b; 
+        table[s_F1][LEX_CHARACTER] = &StateM::F2b; 
         table[s_F1][LEX_SPACE] = &StateM::F2c;
 
         table[s_M1][LEX_CHARACTER] = &StateM::M1;
         
         table[s_H1][LEX_CHARACTER] = &StateM::C1b;
         table[s_H1][LEX_SPACE] = &StateM::H1;
-
+        table[s_H1][LEX_SEMICOLON] = &StateM::H1a;
+        table[s_H1][LEX_L_BRACKET] = &StateM::R1a;
+        table[s_H1][LEX_R_BRACKET] = &StateM::R1a;
+        // end switch
         table[s_H2][LEX_SPACE] = &StateM::H3;
         table[s_H2][LEX_CHARACTER] =&StateM::C1b;
 
         table[s_H3][LEX_CHARACTER] = &StateM::H3a;
         table[s_H3][LEX_SPACE] = &StateM::H3;
 
-        table[s_H4][LEX_SPACE] = &StateM::A0;
-        table[s_H4][LEX_LF] = &StateM::A0a;
-        table[s_H4][LEX_SEMICOLON] = &StateM::D1;
+        table[s_H4][LEX_CHARACTER] = &StateM::H4;
+        
+        table[s_H5][LEX_LF] = &StateM::H5a;
+        table[s_H5][LEX_SPACE] = &StateM::H5;
+        table[s_H5][LEX_SEMICOLON] = &StateM::H5b;
+
+        //comment
+        table[s_G1][LEX_CHARACTER] = &StateM::C1b;
+        table[s_G1][LEX_DIGIT] = &StateM::C1b;
+        table[s_G1][LEX_SPACE] = &StateM::G1d;
+        table[s_G1a][LEX_AR_OPERATION] = &StateM::G1a;
+        table[s_G1a][LEX_ATTITUDE] = &StateM::G1a;
+        table[s_G1a][LEX_CHARACTER] = &StateM::G1a;
+        table[s_G1a][LEX_COLON] = &StateM::G1a;
+        table[s_G1a][LEX_COMMA] = &StateM::G1a;
+        table[s_G1a][LEX_DIGIT] = &StateM::G1a;
+        table[s_G1a][LEX_ERR_SYMB] = &StateM::G1a;
+        table[s_G1a][LEX_L_BRACKET] = &StateM::G1a;
+        table[s_G1a][LEX_L_SQ_BRACKET] = &StateM::G1a;
+        table[s_G1a][LEX_R_BRACKET] = &StateM::G1a;
+        table[s_G1a][LEX_R_SQ_BRACKET] = &StateM::G1a;
+        table[s_G1a][LEX_SPACE] = &StateM::G1a;
+        table[s_G1a][LEX_SEMICOLON] = &StateM::G1b;
+        table[s_G1a][LEX_LF] = &StateM::G1c;
+        //метка
+        table[s_T1][LEX_DIGIT] = &StateM::T1a;
+        table[s_T1a][LEX_DIGIT] = &StateM::T1b;
+        table[s_T1a][LEX_SPACE] = &StateM::T2;
+        
 
         /*
         table[s_A0][LEX_SPACE] = &StateM::A1;

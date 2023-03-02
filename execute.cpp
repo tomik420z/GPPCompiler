@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     //setlocale(LC_ALL, "Russian");
 
     if (argc != 2) {
-        std::cout << "incorrent format\n\nformat: ./execute.exe -file";
+        std::cout << "incorrent form\at\n\nformat: ./execute.exe -file";
         return 1;
     }
     try {

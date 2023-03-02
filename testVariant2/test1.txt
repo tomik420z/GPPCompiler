@@ -1,4 +1,4 @@
 var1 = 34;
-let x = 10;
-dim v2 as type;
-end switch  
+let x = _hash;
+if(x+ :2657 y)
+union hash_add hash_intersec diff simdiff access pow ;
