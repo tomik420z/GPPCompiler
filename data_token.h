@@ -28,6 +28,7 @@ enum TokenClass
     DUAL_MORE,
     VARIABLE,
     CONSTANT,
+    HASH_CONST,
     BIN_SUM,
     BIN_SUB,
     BIN_MULT,
@@ -46,7 +47,7 @@ enum TokenClass
     END_MARKER,
     SEMICOLON,
     ASSIGN,
-    ATTITUDE,
+    RATIO,
     COLON,
     LABLE,
     COMMENT,
@@ -57,19 +58,19 @@ enum TokenClass
 
 struct data_token
 {
+    int num_str;
     TokenClass CToken;
     std::any ptr;
         
-    data_token() : CToken(), ptr() {}
+    data_token() : num_str(0), CToken(), ptr() {}
 
-    data_token(TokenClass CToken) : CToken(CToken), ptr() {}
-
-    template<typename Type>
-    data_token(TokenClass CToken, const Type & ptr) : CToken(CToken), ptr(ptr) {} 
+    data_token(int num, TokenClass CToken) : num_str(num), CToken(CToken), ptr() {}
 
     template<typename Type>
-    data_token(TokenClass CToken, Type && move_ptr) : CToken(CToken), ptr(std::forward<Type>(move_ptr)) {}
-    
+    data_token(int num, TokenClass CToken, const Type & ptr) :num_str(num), CToken(CToken), ptr(ptr) {} 
+
+    template<typename Type>
+    data_token(int num, TokenClass CToken, Type && move_ptr) : num_str(num), CToken(CToken), ptr(std::forward<Type>(move_ptr)) {}
 };
 
 

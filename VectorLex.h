@@ -3,6 +3,17 @@
 #define VECTORLEX_H
 
 #include "StateMachine.h"
+#include <unordered_set>
+
+template<typename __Iter>
+void print_set(__Iter first, __Iter last) {
+    cout << "{ ";
+    for(; first != last; ++first) {
+        cout << *first << " "; 
+    }
+    cout << "}" << endl;
+
+}
 
 void PrintVec(const list<data_token> &obj)
 {
@@ -10,11 +21,22 @@ void PrintVec(const list<data_token> &obj)
     cout << "size Vector: " << obj.size() << endl;
     cout << "Token                           Value\n";
     cout << "-------------------------------------\n";
-    for (const auto &[type, val] : obj)
+    for (const auto &[num_str, type, val] : obj)
     {
-        //std::cout << type << std::endl;
+        cout.width(10);
+        std::cout << num_str + 1;
         switch (type)
         {
+        case HASH_CONST:
+            cout.width(15);
+            cout << "HASH_CONST";
+            cout.width(10);
+            /*for(auto &it:any_cast<hash_set>(val))
+            {
+                cout<< it<< ",";
+            }*/
+            cout << any_cast<hash_set>(val);
+            break;
         case VARIABLE:
             cout.width(15);
             cout << "VARIABLE";
@@ -48,6 +70,12 @@ void PrintVec(const list<data_token> &obj)
             cout << "AR_OP ";
             cout.width(10);
             cout << "/";
+            break;
+        case DUAL_MORE:
+            cout.width(15);
+            cout << "DUAL_MORE ";
+            cout.width(10);
+            cout << ">>";
             break;
         case BIN_MOD:
             cout.width(15);
@@ -104,6 +132,8 @@ void PrintVec(const list<data_token> &obj)
         case NEXT:
             cout.width(15);
             cout << "NEXT";
+            cout.width(10);
+            cout << any_cast<int>(val);
             break;
         case IF:
             cout.width(15);
@@ -112,10 +142,14 @@ void PrintVec(const list<data_token> &obj)
         case THEN:
             cout.width(15);
             cout << "THEN";
+            cout.width(10);
+            cout << any_cast<int>(val);
             break;
         case ELSE:
             cout.width(15);
             cout << "ELSE";
+            cout.width(10);
+            cout << any_cast<int>(val);
             break;
         case LOAD:  
             cout.width(15);
@@ -128,6 +162,8 @@ void PrintVec(const list<data_token> &obj)
         case GOTO:
             cout.width(15);
             cout << "GOTO";
+            cout.width(10);
+            cout << any_cast<int>(val);
             break;
         case SWITCH:
             cout.width(15);
@@ -195,11 +231,15 @@ void PrintVec(const list<data_token> &obj)
             cout.width(15);
             cout << "HASH_ADD";
             break;
-        case ATTITUDE:
+        case COMMA:
             cout.width(15);
-            cout << "ATTITUDE ";
+            cout << "COMMA";
+            break;
+        case RATIO:
+            cout.width(15);
+            cout << "RATIO ";
             cout.width(10);
-            switch (std::any_cast<TypeAttitude>(val))
+            switch (std::any_cast<TypeRatio>(val))
             {
             case LESS:
                 cout << "<";
@@ -227,7 +267,7 @@ void PrintVec(const list<data_token> &obj)
     }
 }
 
-void PrintVariableSet(set<pair<string, bool>> &obj) // ��� ����������
+void PrintVariableSet(set<pair<string, bool>> &obj) // печать переменных
 {
     cout << "{ ";
     for (set<pair<string, bool>>::iterator it = obj.begin(); it != obj.end(); ++it)
@@ -235,12 +275,20 @@ void PrintVariableSet(set<pair<string, bool>> &obj) // ��� �����
     cout << "}";
 }
 
-void PrintConst(set<long double> &obj)
+void PrintConst(set<long double> &obj) // печать констант
 {
     cout << "{ ";
     for (set<long double>::iterator it = obj.begin(); it != obj.end(); ++it)
         cout << *it << "   ";
     cout << "}";
+}
+
+void PrintErrors()
+{
+    for(auto & line:vec_errors)
+    {
+        cout<<line<< endl;
+    }
 }
 
 #endif

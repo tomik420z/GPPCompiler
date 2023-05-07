@@ -1,0 +1,4 @@
+dim x as uint;
+load(x,y,z,u,v);
+load(x, y, z, u, v);
+put(t, 12+le);

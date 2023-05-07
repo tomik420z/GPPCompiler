@@ -23,7 +23,7 @@ void StateM::transliterator(char ch)
     }
     else if (ch == '>' || ch == '<' || ch == '=' || ch == '!')
     {
-        s.SToken = LEX_ATTITUDE;
+        s.SToken = LEX_RATIO;
         s.value = ch;
     }
     else if (ch == '(')

@@ -109,16 +109,16 @@ protected:
     list<data_token>::iterator VecIter;
     bool CheckRule(list<TypeEl> &temp, vector<pair<TypeEl, bool>> &Vec);
     typedef void (Syntax32::*function_pointer)();
-    function_pointer **table1; // Таблица указателей на процедуры автомата.
-    list<TypeEl> store;        // магазин
+    function_pointer **table1; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+    list<TypeEl> store;        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     TypeStore reg_table;
-    vector<pair<TypeEl, vector<pair<TypeEl, bool>>>> rules; //вектор правил
+    vector<pair<TypeEl, vector<pair<TypeEl, bool>>>> rules; //пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     void ClassificationFunction();
     void transformation();
-    void RuleInitialisation();     // инициализация правил грамматики
-    vector<pair<TypeEl, bool>> El; // элементы грамматики
+    void RuleInitialisation();     // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    vector<pair<TypeEl, bool>> El; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     void MemoryTable();
-    void InitializationTable(); // инициализация таблицы синтаксиса
+    void InitializationTable(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     void InitializationFunction();
     vector<string> outputSyntax;
 
@@ -147,19 +147,19 @@ public:
     {
         state_number = 89;
         class_number = 89;
-        transformation();         // переопределение вектора лексического блока
-        ClassificationFunction(); // инициализация таблицы для терминало и нетерминало, нетерминалы - 0, терминалы - 1
-        RuleInitialisation();     // инициализация правил
+        transformation();         // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+        ClassificationFunction(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ - 0, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ - 1
+        RuleInitialisation();     // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         MemoryTable();
         InitializationTable();
 
-        f1 = _STATE_PROCESSING_; // ФЛАГ состояния
+        f1 = _STATE_PROCESSING_; // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     }
 
     void StartSyntax()
     {
-        Init();                     // инициализация магазина (первый эл-т - дно)
-        VecIter = vecToken.begin(); // устанавливаем итератор на начло массива лексем
+        Init();                     // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅ - пїЅпїЅпїЅ)
+        VecIter = vecToken.begin(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         while (f1 == _STATE_PROCESSING_)
         {
             if (store.size() <= 2 && store.back() == _Program_ && VecIter->CToken == _Bottom_)
@@ -168,7 +168,7 @@ public:
             auto it = store.end();
             --it;
             (this->*table1[*it][VecIter->CToken])();
-            if (reg_table == _EQ) // смотрим на начало входного магазина
+            if (reg_table == _EQ) // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                 Transfer();
             else if (reg_table == _LS)
                 Transfer();
@@ -186,7 +186,7 @@ public:
     void Convolution()
     {
 
-        list<TypeEl> temp; // фрагмент, который нужно удалить
+        list<TypeEl> temp; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         while (reg_table != _LS)
         {
             auto it = store.end();
@@ -194,16 +194,16 @@ public:
             auto it1 = store.end();
             --it1;
             --it1;
-            // вызов таблицы, по магазину идём справа налево
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             (this->*table1[*it1][*it])();
             temp.push_front(*it);
             store.pop_back();
         }
 
-        // ищем правило
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         for (size_t i = 0; i < rules.size(); ++i)
         {
-            // если правило совпадает
+            // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if (CheckRule(temp, rules[i].second))
             {
                 store.push_back(rules[i].first);
@@ -373,8 +373,8 @@ void Syntax32::transformation()
         case END_MARKER:
             el->CToken = _Bottom_;
             break;
-        case ATTITUDE:
-            switch (*static_cast<TypeAttitude *>(el->ptr))
+        case RATIO:
+            switch (*static_cast<TypeRatio *>(el->ptr))
             {
             case LESS:
                 el->CToken = _Less_;
@@ -497,7 +497,7 @@ void Syntax32::ClassificationFunction()
 void Syntax32::RuleInitialisation()
 {
     rules.resize(83);
-    // выражения
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     rules[0].first = _Expression_;
     rules[0].second = {El[_Term_]};
 
@@ -548,7 +548,7 @@ void Syntax32::RuleInitialisation()
 
     rules[16].first = _Factor_;
     rules[16].second = {El[_Variable_]};
-    // отношения
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     rules[17].first = _Test_;
     rules[17].second = {El[_Expression_], El[_Attitude_], El[_Expression_]};
 
@@ -575,17 +575,17 @@ void Syntax32::RuleInitialisation()
 
     rules[25].first = _Program_;
     rules[25].second = {El[_Operator_], El[_Program_]};
-    // пустой оператор
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     rules[26].first = _Operator_;
     rules[26].second = {El[_Semicolon_]};
-    // вайл
+    // пїЅпїЅпїЅпїЅ
     rules[27].first = _Operator_;
     rules[27].second = {El[_Nont_While_], El[_End_], El[_Semicolon_]};
 
     rules[28].first = _Nont_While_;
     rules[28].second = {El[_While_], El[_Test_], El[_Do_], El[_Program_]};
 
-    // выражения для списков
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     rules[29].first = _Factor_;
     rules[29].second = {El[_Pow_], El[_L_Bracket_], El[_Expression_], El[_R_Bracket_]};
 
@@ -632,7 +632,7 @@ void Syntax32::RuleInitialisation()
     rules[43].first = _List_let1_;
     rules[43].second = {El[_Expression_]};
 
-    // вывод
+    // пїЅпїЅпїЅпїЅпїЅ
     rules[44].first = _Operator_;
     rules[44].second = {El[_Nont_Put_], El[_Semicolon_]};
 
@@ -651,7 +651,7 @@ void Syntax32::RuleInitialisation()
     rules[49].first = _Nont_Put1_;
     rules[49].second = {El[_Put_], El[_E_bracket_]};
 
-    // ввод
+    // пїЅпїЅпїЅпїЅ
     rules[50].first = _Operator_;
     rules[50].second = {El[_Nont_load1_], El[_Semicolon_]};
 
@@ -670,7 +670,7 @@ void Syntax32::RuleInitialisation()
     rules[55].first = _Nont_R_br_;
     rules[55].second = {El[_R_Bracket_]};
 
-    // объявдение
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     rules[56].first = _Operator_;
     rules[56].second = {El[_Declaration_], El[_Semicolon_]};
 

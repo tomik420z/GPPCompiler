@@ -4,7 +4,6 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    //setlocale(LC_ALL, "Russian");
 
     if (argc != 2) {
         std::cout << "incorrent form\at\n\nformat: ./execute.exe -file";
@@ -14,6 +13,11 @@ int main(int argc, char *argv[])
         StateM programm1;
         programm1.StartDKA(argv[1]);
         PrintVec(vecToken);
+        cout << "SET_CONST = ";
+        print_set(set_const.begin(), set_const.end());
+        cout << "SET_VARIABLE = ";
+        print_set(set_var.begin(), set_var.end());
+        PrintErrors();
     if (programm1.flagAnalyzer == true) {
         cout << "ANALYZER: accept" << endl;
     }

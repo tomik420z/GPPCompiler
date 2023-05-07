@@ -9,7 +9,8 @@
 #include <list>
 #include <set>
 #include "data_token.h"
-#include "LIST.h"
+#include <unordered_set>
+#include "hash_set.h"
 
 using namespace std;
 
@@ -18,7 +19,7 @@ enum SymbolToken
     LEX_DIGIT,
     LEX_CHARACTER,
     LEX_AR_OPERATION,
-    LEX_ATTITUDE,
+    LEX_RATIO,
     LEX_L_BRACKET,
     LEX_R_BRACKET,
     LEX_SPACE,
@@ -28,12 +29,13 @@ enum SymbolToken
     LEX_ERR_SYMB,
     LEX_COLON,
     LEX_L_SQ_BRACKET,
-    LEX_R_SQ_BRACKET
+    LEX_R_SQ_BRACKET,
+    LEX_END_MARKET
 };
 
 
 
-enum TypeAttitude
+enum TypeRatio
 {
     LESS,
     MORE,
@@ -61,62 +63,23 @@ enum States
     s_H3,
     s_H4,
     s_H5,
+    s_W1,
     s_G1,
     s_G1a,
     s_T1,
     s_T1a,
+    s_K1,
+    s_K2,
+    s_K3,
+    s_R1,
+    s_Z1,
+    s_Z2,
+    s_Z3, 
+    s_Z4,
+    s_P1,
     s_Error,
     s_Stop
 };
-
-struct Variable
-{
-    int Type;          // 0 -  ����������, 1 - ���������, 2 - ������-���������
-    bool TypeVariable; // ��� ������������ ����� ������� ������
-    string name_value;
-    int const_value;
-    List uintList;
-
-    Variable &operator=(Variable &obj)
-    {
-        if (this == &obj)
-            return *this;
-
-        if (obj.Type != Type)
-            throw "Err";
-
-        name_value = obj.name_value;
-        const_value = obj.const_value;
-
-        return *this;
-    }
-};
-
-string getFromVar(void *i)
-{
-    string res;
-
-    if (((Variable *)(i))->Type == 1)
-    {
-        res += to_string(((Variable *)(i))->const_value);
-    }
-    else if (((Variable *)(i))->Type == 0)
-    {
-        res += ((Variable *)(i))->name_value;
-    }
-    if (((Variable *)(i))->Type == 2)
-    {
-        res = "{";
-        for (List::Iterator it = (((Variable *)(i))->uintList.begin()); it != (((Variable *)(i))->uintList.end()); ++it)
-        {
-            res += to_string(*it);
-            if (it + 1 != (((Variable *)(i))->uintList.end()))
-                res += ",";
-        }
-        res += "}";
-    }
-    return res;
-}
 
 struct PairToken
 {
@@ -126,7 +89,9 @@ struct PairToken
 
 list<data_token> vecToken;      
 set<pair<string, bool>> SetVar; 
-
+unordered_set<int> set_const;
+unordered_set<string> set_var;
+vector<string> vec_errors;
 class StateM
 {
 protected:
@@ -135,9 +100,14 @@ protected:
     int reg_const;
     string reg_name;
     int reg_num_str;
+
+    int reg_str_comment;
+
     char register_ratio;
     int cur_state;
+    TokenClass register_ar_operations;
     TokenClass reg_token;
+    hash_set reg_hash;
 
     int state_number; 
     int class_number; 
@@ -157,6 +127,7 @@ protected:
     int B1h();
     int B1i();
     int C1k();
+    int B1u();
 
     int C1a();
     int C1b();  
@@ -172,7 +143,17 @@ protected:
     int D1();
 
     int G1();
-    
+    int G1e();
+    int G1f();
+    int G1g();
+    int G1h();
+    int G1y();
+    int G1k();
+    int G1l();
+    int G1m();
+    int G1n();
+    int G1o();
+
     int F1();
     int F2();
     int F2a();
@@ -189,11 +170,23 @@ protected:
     int H5();
     int H5a();
     int H5b();
+    int K1();
+
+    int K2();
+    int K2a();
+
+    int K3b();
+    int K4a();
+    int K4b();
+    int K4c();
+
+    int J1();
 
     int G1d();
     int G1a();
     int G1b();
     int G1c();
+    
 
     int M1();
     int M2();
@@ -205,110 +198,53 @@ protected:
     int T1a();
     int T1b();
     int T2();
-    
-  /*  int A0b();
-    int A0c();
-    int A0d();
-    int A0e();
-    int A0i();
-    int A0j();
-    int A0k();
-    int A0l();
-    int A0m();
-    int A0n();
-    int A0o();
-    int A0p();
-    int A0q();
-    int A0r();
-    int A0s();
-    int A0t();
-    int A0u();
+    int T2a();
 
-    int A1();
-    int A1a();
-    int A1vb();
-    int A1c();
-    int A1vd();
-    int A1ce();
-    int A1vf();
-    int A1vi();
-    int A1cg();
-    int A1ci();
-    int A1vj();
-    int A1cj();
-    int A1vk();
-    int A1vn();
-    int A1vo();
-    int A1ck();
-    int A1vl();
-    int A1cl();
-    int A1h();
-    int A1vm();
-    int A1i();
-    int A1j();
-    int B1a();
-    int B1b();
-    int C1a();
-    int C1b();
-    int D1();
-    int E1();
-    int F1();
-    int G1a();
-    int G1b();
-    int F1a();
-    int H1();
-    int N1a();
-    int N1b();
-    int N1c();
-    int N1d();
+    int S1a();
+    int S1b();
+    int S1c();
 
-    int M1();
+    int Z1(); // считать [
+    int Z1a(); // считать пробелы 
+    int Z1b();  // ]
 
-    int O1();
-    int O1a();
-    int O1b();
-    int O1c();
+    int Z2a();  // считать первую цифру 
+    int Z2b();  // считать остальные цифры числа  
+    int Z2c();  // пробел после цифры 
+    int Z2d();  // считать ] 
+    int Z2e();  // считать , 
 
-    int O2a();
-    int O2b();
-    int O3a();
-    int O3b();
-    int O3c();
-    int O3d();
+    int Z3a(); // считатть остальные проблелы 
+    int Z3d(); // считать ] 
+    int Z3e(); // считать ,
 
-    int P2();
-    int P3();
-    int P4();
-    int P5();
+    int Z4a(); // счиать пробелы 
+    int Z4b(); // считать цифру 
 
-    int R1();
-    int R2();
-    int R3a();
-    int R3b();
-    int R4b();
-    int R5a();
-    int R5b();
+    int Z5a();
 
-    int Q1a();
-    int Q1b();
+    int E1(); //ошибка переменной
+    int E1a();
+    int E2(); //символы
+    int E2a();
+    int E3(); //операции
+    int E3a();
+    int E4(); //хэш
+    int E4a();
+    int E5(); //метки
+    int E5a();
+    int E6(); //raise
+    int E6a();
+    int E7(); //comment
+    int E7a();
+    int E8();
+    int E9(); //end switch
+    int E9a();
+    int E10();
 
-    int Z1a(); // UNIT
-    int Z1b(); // INTERS
-    int Z1c(); // DIFF
-    int Z1d(); //SYMM_DIFF
-    int Z1e(); // ADD
-    int Z1f(); // ACCES
-    int Z1g(); // POW
+    int P1();
 
-    int Z2();
-    int J1();
-
-    int Z2a(); // LOAD
-    int Z2b(); // LOAD*
-
-    int Z3a();
-    int Z3b(); // PUT*
-    */
+    int Q1();
 
     int Error1();
     void CreateVariable();
@@ -319,13 +255,10 @@ protected:
 public:
     bool flagAnalyzer;
     set<int> SetConst; 
-    List RegList;
-
+    
     void transliterator(char ch);                 
     void StartDKA(const char *NameFile);            
     void LineProcessing(const string &RegisterStr); 
-    friend void PrintVec(list<data_token> &obj);
-    friend void PrintVarList(vector<Variable> &obj);
     friend void PrintLableList(set<int> &obj);
     friend void PrintConst(set<int> &obj);
 
@@ -347,64 +280,190 @@ public:
         table[s_A0][LEX_SEMICOLON] = &StateM::D1; //создание лексемы ;
         table[s_A0][LEX_DIGIT] = &StateM::B1;   // создание числа
         table[s_A0][LEX_AR_OPERATION] = &StateM::G1;
-        table[s_A0][LEX_ATTITUDE] = &StateM::F1;
+        table[s_A0][LEX_RATIO] = &StateM::F1;
         table[s_A0][LEX_CHARACTER] = &StateM::C1a;
         table[s_A0][LEX_L_BRACKET] = &StateM::R1;
         table[s_A0][LEX_R_BRACKET] = &StateM::R1;
         table[s_A0][LEX_COLON] = &StateM::T1;
+        table[s_A0][LEX_COMMA] =&StateM::S1a;
+        table[s_A0][LEX_L_SQ_BRACKET] = &StateM::Z1;
 
+        table[s_A0][LEX_R_SQ_BRACKET] = &StateM::E4;
+
+        table[s_A0][LEX_ERR_SYMB] = &StateM::E2;
+
+        table[s_W1][LEX_AR_OPERATION] =&StateM::E3;
+    
+        table[s_W1][LEX_SPACE] = &StateM::G1e; 
+        table[s_W1][LEX_LF] = &StateM::G1f;
+        table[s_W1][LEX_SEMICOLON] = &StateM::G1g;
+        table[s_W1][LEX_DIGIT] = &StateM::G1h;
+        table[s_W1][LEX_RATIO] = &StateM::G1y;
+        table[s_W1][LEX_CHARACTER] = &StateM::G1k;
+        table[s_W1][LEX_L_BRACKET] = &StateM::G1l;
+        table[s_W1][LEX_R_BRACKET] = &StateM::G1l;
+        table[s_W1][LEX_COLON] = &StateM::G1m;
+        table[s_W1][LEX_COMMA] =&StateM::G1n;
+        table[s_W1][LEX_L_SQ_BRACKET] = &StateM::G1o;
+        table[s_W1][LEX_ERR_SYMB] = &StateM::E2;
+        
+        // parsing constant 
         table[s_B1][LEX_DIGIT] = &StateM::B1a;
         table[s_B1][LEX_SPACE] = &StateM::B1c;
         table[s_B1][LEX_SEMICOLON] = &StateM::B1d;
         table[s_B1][LEX_SPACE] = &StateM::B1s;
         table[s_B1][LEX_LF] = &StateM::B1g;
         table[s_B1][LEX_AR_OPERATION] = &StateM::B1h;
-        table[s_B1][LEX_ATTITUDE] = &StateM::B1i;
+        table[s_B1][LEX_RATIO] = &StateM::B1i;
+        table[s_B1][LEX_COMMA] = &StateM::S1b;  
+        table[s_B1][LEX_L_BRACKET] = &StateM::B1u;
+        table[s_B1][LEX_R_BRACKET] = &StateM::B1u;
 
+        table[s_B1][LEX_CHARACTER] = &StateM::E1;
+
+        table[s_B1][LEX_R_SQ_BRACKET] =&StateM::E4;
+
+        // parsing variable 
         table[s_C1][LEX_CHARACTER] = &StateM::C1b;
         table[s_C1][LEX_DIGIT] = &StateM::C1c;
         table[s_C1][LEX_SPACE] = &StateM::C1d;
-        table[s_C1][LEX_ATTITUDE] = &StateM::C1e;
+        table[s_C1][LEX_RATIO] = &StateM::C1e;
         table[s_C1][LEX_SEMICOLON] = &StateM::C1f;
         table[s_C1][LEX_LF] = &StateM::C1g;
         table[s_C1][LEX_L_BRACKET] = &StateM::C1k;
         table[s_C1][LEX_R_BRACKET] = &StateM::C1k;
         table[s_C1][LEX_AR_OPERATION] = &StateM::C1l;
-        //table[s_C1][LEFT_BRACKET] = &StateM::C1h;
-        //table[s_C1][RIGHT_BRACKET] = &StateM::C1i;
-    
+        table[s_C1][LEX_COMMA] = &StateM::S1c;   
 
-        table[s_F1][LEX_ATTITUDE] = &StateM::F2; // двухсимвольный знак отношения 
+        table[s_C1][LEX_R_SQ_BRACKET] =&StateM::E4;
+        table[s_C1][LEX_ERR_SYMB] = &StateM::E2;     
+
+        table[s_F1][LEX_RATIO] = &StateM::F2; // двухсимвольный знак отношения 
         table[s_F1][LEX_DIGIT] = &StateM::F2a;
         table[s_F1][LEX_CHARACTER] = &StateM::F2b; 
         table[s_F1][LEX_SPACE] = &StateM::F2c;
 
+
         table[s_M1][LEX_CHARACTER] = &StateM::M1;
+        table[s_M1][LEX_L_BRACKET] = &StateM::C1k;
+        table[s_M1][LEX_R_BRACKET] = &StateM::C1k;
+        table[s_M1][LEX_DIGIT] = &StateM::C1c;
+        table[s_M1][LEX_SPACE] = &StateM::C1d;
+        table[s_M1][LEX_LF] = &StateM::C1g;
+        table[s_M1][LEX_COMMA] = &StateM::S1c;
         
         table[s_H1][LEX_CHARACTER] = &StateM::C1b;
+        table[s_H1][LEX_DIGIT] = &StateM::C1b;
         table[s_H1][LEX_SPACE] = &StateM::H1;
         table[s_H1][LEX_SEMICOLON] = &StateM::H1a;
         table[s_H1][LEX_L_BRACKET] = &StateM::R1a;
         table[s_H1][LEX_R_BRACKET] = &StateM::R1a;
+        table[s_H1][LEX_LF] = &StateM::Q1;
+
+        table[s_H1][LEX_COMMA] = &StateM::E8;
+
+        table[s_R1][LEX_CHARACTER] = &StateM::C1b;
+        table[s_R1][LEX_DIGIT] = &StateM::C1b;
+        table[s_R1][LEX_SPACE] = &StateM::P1;
+        table[s_R1][LEX_SEMICOLON] = &StateM::H1a;
+
+        table[s_P1][LEX_SPACE]= &StateM::P1;
+        table[s_P1][LEX_SEMICOLON] = &StateM::H1a;
+        
+        table[s_P1][LEX_DIGIT] = &StateM::E6;
+        table[s_P1][LEX_CHARACTER] = &StateM::E6;
+        table[s_P1][LEX_L_BRACKET] = &StateM::E6;
+        table[s_P1][LEX_R_BRACKET] = &StateM::E6;
+        table[s_P1][LEX_AR_OPERATION] = &StateM::E6;
+        table[s_P1][LEX_RATIO] = &StateM::E6;
+        table[s_P1][LEX_COLON] = &StateM::E6;
+        table[s_P1][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_P1][LEX_L_SQ_BRACKET] = &StateM::E6;
+        table[s_P1][LEX_LF] = &StateM::E6a;
+        table[s_P1][LEX_R_SQ_BRACKET] = &StateM::E6;
+
+        table[s_R1][LEX_L_BRACKET] = &StateM::E6;
+        table[s_R1][LEX_R_BRACKET] = &StateM::E6;
+        table[s_R1][LEX_AR_OPERATION] = &StateM::E6;
+        table[s_R1][LEX_RATIO] = &StateM::E6;
+        table[s_R1][LEX_COLON] = &StateM::E6;
+        table[s_R1][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_R1][LEX_L_SQ_BRACKET] = &StateM::E6;
+        table[s_R1][LEX_LF] = &StateM::E6a;
+        table[s_R1][LEX_R_SQ_BRACKET] = &StateM::E6;
+
         // end switch
         table[s_H2][LEX_SPACE] = &StateM::H3;
         table[s_H2][LEX_CHARACTER] =&StateM::C1b;
 
+        table[s_H2][LEX_L_BRACKET] = &StateM::E9;
+        table[s_H2][LEX_R_BRACKET] = &StateM::E9;
+        table[s_H2][LEX_AR_OPERATION] = &StateM::E9;
+        table[s_H2][LEX_RATIO] = &StateM::E9;
+        table[s_H2][LEX_COLON] = &StateM::E9;
+        table[s_H2][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_H2][LEX_L_SQ_BRACKET] = &StateM::E9;
+        table[s_H2][LEX_LF] = &StateM::E9a;
+        table[s_H2][LEX_R_SQ_BRACKET] = &StateM::E9;
+        table[s_H2][LEX_COMMA] =&StateM::E9;
+        table[s_H2][LEX_DIGIT] =&StateM::E9;
+        table[s_H2][LEX_SEMICOLON] =&StateM::E9;
+
         table[s_H3][LEX_CHARACTER] = &StateM::H3a;
         table[s_H3][LEX_SPACE] = &StateM::H3;
 
+        table[s_H3][LEX_L_BRACKET] = &StateM::E9;
+        table[s_H3][LEX_R_BRACKET] = &StateM::E9;
+        table[s_H3][LEX_AR_OPERATION] = &StateM::E9;
+        table[s_H3][LEX_RATIO] = &StateM::E9;
+        table[s_H3][LEX_COLON] = &StateM::E9;
+        table[s_H3][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_H3][LEX_L_SQ_BRACKET] = &StateM::E9;
+        table[s_H3][LEX_LF] = &StateM::E9a;
+        table[s_H3][LEX_R_SQ_BRACKET] = &StateM::E9;
+        table[s_H3][LEX_COMMA] =&StateM::E9;
+        table[s_H3][LEX_DIGIT] =&StateM::E9;
+        table[s_H3][LEX_SEMICOLON] =&StateM::E9;
+
         table[s_H4][LEX_CHARACTER] = &StateM::H4;
+
+        table[s_H4][LEX_SPACE] = &StateM::E9;
+        table[s_H4][LEX_L_BRACKET] = &StateM::E9;
+        table[s_H4][LEX_R_BRACKET] = &StateM::E9;
+        table[s_H4][LEX_AR_OPERATION] = &StateM::E9;
+        table[s_H4][LEX_RATIO] = &StateM::E9;
+        table[s_H4][LEX_COLON] = &StateM::E9;
+        table[s_H4][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_H4][LEX_L_SQ_BRACKET] = &StateM::E9;
+        table[s_H4][LEX_LF] = &StateM::E9a;
+        table[s_H4][LEX_R_SQ_BRACKET] = &StateM::E9;
+        table[s_H4][LEX_COMMA] =&StateM::E9;
+        table[s_H4][LEX_DIGIT] =&StateM::E9;
+        table[s_H4][LEX_SEMICOLON] =&StateM::E9;
         
         table[s_H5][LEX_LF] = &StateM::H5a;
         table[s_H5][LEX_SPACE] = &StateM::H5;
         table[s_H5][LEX_SEMICOLON] = &StateM::H5b;
 
+        table[s_H5][LEX_L_BRACKET] = &StateM::E9;
+        table[s_H5][LEX_R_BRACKET] = &StateM::E9;
+        table[s_H5][LEX_AR_OPERATION] = &StateM::E9;
+        table[s_H5][LEX_RATIO] = &StateM::E9;
+        table[s_H5][LEX_COLON] = &StateM::E9;
+        table[s_H5][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_H5][LEX_L_SQ_BRACKET] = &StateM::E9;
+        table[s_H5][LEX_R_SQ_BRACKET] = &StateM::E9;
+        table[s_H5][LEX_COMMA] =&StateM::E9;
+        table[s_H5][LEX_DIGIT] =&StateM::E9;
+
         //comment
         table[s_G1][LEX_CHARACTER] = &StateM::C1b;
         table[s_G1][LEX_DIGIT] = &StateM::C1b;
         table[s_G1][LEX_SPACE] = &StateM::G1d;
+
+
         table[s_G1a][LEX_AR_OPERATION] = &StateM::G1a;
-        table[s_G1a][LEX_ATTITUDE] = &StateM::G1a;
+        table[s_G1a][LEX_RATIO] = &StateM::G1a;
         table[s_G1a][LEX_CHARACTER] = &StateM::G1a;
         table[s_G1a][LEX_COLON] = &StateM::G1a;
         table[s_G1a][LEX_COMMA] = &StateM::G1a;
@@ -417,150 +476,48 @@ public:
         table[s_G1a][LEX_SPACE] = &StateM::G1a;
         table[s_G1a][LEX_SEMICOLON] = &StateM::G1b;
         table[s_G1a][LEX_LF] = &StateM::G1c;
+        //table[s_G1a][LEX_LF] = &StateM::O1;
+
+
         //метка
         table[s_T1][LEX_DIGIT] = &StateM::T1a;
         table[s_T1a][LEX_DIGIT] = &StateM::T1b;
         table[s_T1a][LEX_SPACE] = &StateM::T2;
-        
+        table[s_T1a][LEX_LF] = &StateM::T2a;
 
-        /*
-        table[s_A0][LEX_SPACE] = &StateM::A1;
-        table[s_A0][LEX_L_BRACKET] = &StateM::G1a;
-        table[s_A0][LEX_R_BRACKET] = &StateM::G1b;
-        table[s_A0][LEX_SEMICOLON] = &StateM::D1;
-        table[s_A0][LEX_LF] = &StateM::A1a;
-        table[s_A0][LEX_CHARACTER] = &StateM::Q1a;
-        table[s_A0][LEX_DIGIT] = &StateM::Q1a;
+        table[s_T1a][LEX_AR_OPERATION] = &StateM::E5;
+        table[s_T1a][LEX_RATIO] = &StateM::E5;
+        table[s_T1a][LEX_CHARACTER] = &StateM::E5;
+        table[s_T1a][LEX_COLON] = &StateM::E5;
+        table[s_T1a][LEX_COMMA] = &StateM::E5;
+        table[s_T1a][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_T1a][LEX_L_BRACKET] = &StateM::E5;
+        table[s_T1a][LEX_L_SQ_BRACKET] = &StateM::E5;
+        table[s_T1a][LEX_R_BRACKET] = &StateM::E5;
+        table[s_T1a][LEX_SEMICOLON] = &StateM::E5;
 
-        table[s_A1][LEX_SPACE] = &StateM::A1;
-        table[s_A1][LEX_LF] = &StateM::A1a;
-        table[s_A1][LEX_CHARACTER] = &StateM::F1;
-        table[s_A1][LEX_DIGIT] = &StateM::C1a;
-        table[s_A1][LEX_SEMICOLON] = &StateM::D1;
-        table[s_A1][LEX_AR_OPERATION] = &StateM::E1;
-        table[s_A1][LEX_L_BRACKET] = &StateM::G1a;
-        table[s_A1][LEX_R_BRACKET] = &StateM::G1b;
-        table[s_A1][LEX_ATTITUDE] = &StateM::H1;
-        table[s_A1][LEX_COLON] = &StateM::O1;
-        table[s_A1][LEX_L_SQ_BRACKET] = &StateM::R2;
-        table[s_A1][LEX_COMMA] = &StateM::Z2;
-
-        table[s_B1][LEX_CHARACTER] = &StateM::B1b;
-        table[s_B1][LEX_DIGIT] = &StateM::B1a;
-        table[s_B1][LEX_SPACE] = &StateM::A1vb;
-        table[s_B1][LEX_LF] = &StateM::A1vd;
-        table[s_B1][LEX_AR_OPERATION] = &StateM::A1vf;
-        table[s_B1][LEX_SEMICOLON] = &StateM::A1vi;
-        table[s_B1][LEX_L_BRACKET] = &StateM::A1vj;
-        table[s_B1][LEX_R_BRACKET] = &StateM::A1vk;
-        table[s_B1][LEX_ATTITUDE] = &StateM::A1vl;
-        table[s_B1][LEX_COMMA] = &StateM::A1vm;
-        table[s_B1][LEX_COLON] = &StateM::O1b;
-
-        table[s_C1][LEX_DIGIT] = &StateM::C1b;
-        table[s_C1][LEX_SPACE] = &StateM::A1c;
-        table[s_C1][LEX_LF] = &StateM::A1ce;
-        table[s_C1][LEX_AR_OPERATION] = &StateM::A1cg;
-        table[s_C1][LEX_SEMICOLON] = &StateM::A1ci;
-        table[s_C1][LEX_L_BRACKET] = &StateM::A1cj;
-        table[s_C1][LEX_R_BRACKET] = &StateM::A1ck;
-        table[s_C1][LEX_ATTITUDE] = &StateM::A1cl;
-        table[s_C1][LEX_COLON] = &StateM::O1a;
-        table[s_C1][LEX_COMMA] = &StateM::O1c;
-
-        table[s_F1][LEX_CHARACTER] = &StateM::M1;
-        table[s_F1][LEX_DIGIT] = &StateM::B1a;
-        table[s_F1][LEX_SPACE] = &StateM::A1vb;
-        table[s_F1][LEX_LF] = &StateM::A1vd;
-        table[s_F1][LEX_AR_OPERATION] = &StateM::A1vf;a
-        table[s_F1][LEX_SEMICOLON] = &StateM::A1vi;
-        table[s_F1][LEX_L_BRACKET] = &StateM::A1vj;
-        table[s_F1][LEX_R_BRACKET] = &StateM::A1vk;
-        table[s_F1][LEX_ATTITUDE] = &StateM::A1vl;
-        table[s_F1][LEX_COLON] = &StateM::A1vn;
-        table[s_F1][LEX_COMMA] = &StateM::A1vo;
-
-        table[s_H1][LEX_ATTITUDE] = &StateM::N1a;
-        table[s_H1][LEX_CHARACTER] = &StateM::N1b;
-        table[s_H1][LEX_DIGIT] = &StateM::N1c;
-        table[s_H1][LEX_SPACE] = &StateM::N1d;
-
-        table[s_O1][LEX_DIGIT] = &StateM::O2a;
-        table[s_O1][LEX_SPACE] = &StateM::O3c;
-        table[s_O1][LEX_LF] = &StateM::O3d;
-
-        table[s_O2][LEX_DIGIT] = &StateM::O2b;
-        table[s_O2][LEX_SPACE] = &StateM::O3a;
-        table[s_O2][LEX_LF] = &StateM::O3b;
-
-        table[s_P1][LEX_ATTITUDE] = &StateM::P2;
-
-        table[s_P2][LEX_ATTITUDE] = &StateM::P3;
-
-        table[s_P3][LEX_DIGIT] = &StateM::P3;
-        table[s_P3][LEX_CHARACTER] = &StateM::P3;
-        table[s_P3][LEX_AR_OPERATION] = &StateM::P3;
-        table[s_P3][LEX_ATTITUDE] = &StateM::P3;
-        table[s_P3][LEX_L_BRACKET] = &StateM::P3;
-        table[s_P3][LEX_R_BRACKET] = &StateM::P3;
-        table[s_P3][LEX_SPACE] = &StateM::P3;
-        table[s_P3][LEX_LF] = &StateM::P3;
-        table[s_P3][LEX_COMMA] = &StateM::P3;
-        table[s_P3][LEX_SEMICOLON] = &StateM::P3;
-        table[s_P3][LEX_ERR_SYMB] = &StateM::P3;
-        table[s_P3][LEX_COLON] = &StateM::P3;
-        table[s_P3][LEX_L_SQ_BRACKET] = &StateM::P3;
-        table[s_P3][LEX_R_SQ_BRACKET] = &StateM::P3;
-
-        table[s_P4][LEX_DIGIT] = &StateM::P4;
-        table[s_P4][LEX_CHARACTER] = &StateM::P4;
-        table[s_P4][LEX_AR_OPERATION] = &StateM::P4;
-        table[s_P4][LEX_ATTITUDE] = &StateM::P4;
-        table[s_P4][LEX_L_BRACKET] = &StateM::P4;
-        table[s_P4][LEX_R_BRACKET] = &StateM::P4;
-        table[s_P4][LEX_SPACE] = &StateM::P4;
-        table[s_P4][LEX_LF] = &StateM::P4;
-        table[s_P4][LEX_COMMA] = &StateM::P4;
-        table[s_P4][LEX_SEMICOLON] = &StateM::P4;
-        table[s_P4][LEX_ERR_SYMB] = &StateM::P4;
-        table[s_P4][LEX_COLON] = &StateM::P4;
-        table[s_P4][LEX_L_SQ_BRACKET] = &StateM::P4;
-        table[s_P4][LEX_R_SQ_BRACKET] = &StateM::P4;
-
-        table[s_P5][LEX_DIGIT] = &StateM::P5;
-        table[s_P5][LEX_CHARACTER] = &StateM::P5;
-        table[s_P5][LEX_AR_OPERATION] = &StateM::P5;
-        table[s_P5][LEX_ATTITUDE] = &StateM::P5;
-        table[s_P5][LEX_L_BRACKET] = &StateM::P5;
-        table[s_P5][LEX_R_BRACKET] = &StateM::P5;
-        table[s_P5][LEX_SPACE] = &StateM::P5;
-        table[s_P5][LEX_LF] = &StateM::P5;
-        table[s_P5][LEX_COMMA] = &StateM::P5;
-        table[s_P5][LEX_SEMICOLON] = &StateM::P5;
-        table[s_P5][LEX_ERR_SYMB] = &StateM::P5;
-        table[s_P5][LEX_COLON] = &StateM::P5;
-        table[s_P5][LEX_L_SQ_BRACKET] = &StateM::P5;
-        table[s_P5][LEX_R_SQ_BRACKET] = &StateM::P5;
-
-        table[s_R2][LEX_R_SQ_BRACKET] = &StateM::R5b;
-        table[s_R2][LEX_DIGIT] = &StateM::R3a;
-
-        table[s_R3][LEX_DIGIT] = &StateM::R3b;
-        table[s_R3][LEX_COMMA] = &StateM::R4b;
-        table[s_R3][LEX_R_SQ_BRACKET] = &StateM::R5a;
-
-        table[s_R4][LEX_DIGIT] = &StateM::R3a;
-
-        table[s_Z1][LEX_L_BRACKET] = &StateM::G1a;
+        table[s_T1][LEX_AR_OPERATION] = &StateM::E5;
+        table[s_T1][LEX_RATIO] = &StateM::E5;
+        table[s_T1][LEX_CHARACTER] = &StateM::E5;
+        table[s_T1][LEX_COLON] = &StateM::E5;
+        table[s_T1][LEX_COMMA] = &StateM::E5;
+        table[s_T1][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_T1][LEX_L_BRACKET] = &StateM::E5;
+        table[s_T1][LEX_L_SQ_BRACKET] = &StateM::E5;
+        table[s_T1][LEX_LF] = &StateM::E5a;
+        table[s_T1][LEX_R_BRACKET] = &StateM::E5;
+        table[s_T1][LEX_R_SQ_BRACKET] = &StateM::E5;
+        table[s_T1][LEX_SEMICOLON] = &StateM::E5;
+        table[s_T1][LEX_SPACE] = &StateM::E5;
 
         table[s_J1][LEX_DIGIT] = &StateM::J1;
         table[s_J1][LEX_CHARACTER] = &StateM::J1;
         table[s_J1][LEX_AR_OPERATION] = &StateM::J1;
-        table[s_J1][LEX_ATTITUDE] = &StateM::J1;
+        table[s_J1][LEX_RATIO] = &StateM::J1;
         table[s_J1][LEX_L_BRACKET] = &StateM::J1;
         table[s_J1][LEX_R_BRACKET] = &StateM::J1;
         table[s_J1][LEX_SPACE] = &StateM::J1;
-        table[s_J1][LEX_LF] = &StateM::A1a;
+        table[s_J1][LEX_LF] = &StateM::A0a;
         table[s_J1][LEX_COMMA] = &StateM::J1;
         table[s_J1][LEX_SEMICOLON] = &StateM::J1;
         table[s_J1][LEX_ERR_SYMB] = &StateM::J1;
@@ -568,17 +525,131 @@ public:
         table[s_J1][LEX_L_SQ_BRACKET] = &StateM::J1;
         table[s_J1][LEX_R_SQ_BRACKET] = &StateM::J1;
 
-        table[s_Z2][LEX_SPACE] = &StateM::Z2a;
-        table[s_Z2][LEX_L_BRACKET] = &StateM::Z2b;
+        
+        //goto, then, else
+        table[s_K1][LEX_SPACE] = &StateM::K1;
+        table[s_K1][LEX_CHARACTER] = &StateM::C1b;
+        table[s_K1][LEX_DIGIT] = &StateM::C1b;
+
+
+        table[s_K1][LEX_RATIO] = &StateM::E5;
+        table[s_K1][LEX_SEMICOLON] = &StateM::E5;
+        table[s_K1][LEX_LF] = &StateM::E5a;
+        table[s_K1][LEX_L_BRACKET] = &StateM::E5;
+        table[s_K1][LEX_R_BRACKET] = &StateM::E5;
+        table[s_K1][LEX_AR_OPERATION] = &StateM::E5;
+        table[s_K1][LEX_COMMA] = &StateM::E5;  
+        table[s_K1][LEX_COLON] = &StateM::E5;
+        table[s_K1][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_K1][LEX_L_SQ_BRACKET] = &StateM::E5;
+        table[s_K1][LEX_R_SQ_BRACKET] = &StateM::E5;
+
+
+        table[s_K2][LEX_SPACE] = &StateM::K2;
+        table[s_K2][LEX_DIGIT] = &StateM::K2a;
+
+        table[s_K2][LEX_AR_OPERATION] = &StateM::E5;
+        table[s_K2][LEX_RATIO] = &StateM::E5;
+        table[s_K2][LEX_CHARACTER] = &StateM::E5;
+        table[s_K2][LEX_COLON] = &StateM::E5;
+        table[s_K2][LEX_COMMA] = &StateM::E5;
+        table[s_K2][LEX_ERR_SYMB] = &StateM::E5;
+        table[s_K2][LEX_L_BRACKET] = &StateM::E5;
+        table[s_K2][LEX_L_SQ_BRACKET] = &StateM::E5;
+        table[s_K2][LEX_LF] = &StateM::E5a;
+        table[s_K2][LEX_R_BRACKET] = &StateM::E5;
+        table[s_K2][LEX_R_SQ_BRACKET] = &StateM::E5;
+        table[s_K2][LEX_SEMICOLON] = &StateM::E5;
+
+
+        table[s_K3][LEX_DIGIT] = &StateM::K3b;
+        table[s_K3][LEX_SPACE] =&StateM::K4a;
+        table[s_K3][LEX_LF] = &StateM::K4b;
+        table[s_K3][LEX_SEMICOLON] = &StateM::K4c;
+
+        table[s_K3][LEX_AR_OPERATION] = &StateM::E5;
+        table[s_K3][LEX_RATIO] = &StateM::E5;
+        table[s_K3][LEX_CHARACTER] = &StateM::E5;
+        table[s_K3][LEX_COLON] = &StateM::E5;
+        table[s_K3][LEX_COMMA] = &StateM::E5;
+        table[s_K3][LEX_ERR_SYMB] = &StateM::E5;
+        table[s_K3][LEX_L_BRACKET] = &StateM::E5;
+        table[s_K3][LEX_L_SQ_BRACKET] = &StateM::E5;
+        table[s_K3][LEX_R_BRACKET] = &StateM::E5;
+        table[s_K3][LEX_R_SQ_BRACKET] = &StateM::E5;
+
+        table[s_Z1][LEX_SPACE] = &StateM::Z1a;
+        table[s_Z1][LEX_R_SQ_BRACKET] = &StateM::Z1b;
+        table[s_Z1][LEX_DIGIT] = &StateM::Z2a;
+
+        table[s_Z1][LEX_RATIO] = &StateM::E4;
+        table[s_Z1][LEX_AR_OPERATION] = &StateM::E4;
+        table[s_Z1][LEX_CHARACTER] = &StateM::E4;
+        table[s_Z1][LEX_COLON] = &StateM::E4;
+        table[s_Z1][LEX_COMMA] = &StateM::E4;
+        table[s_Z1][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_Z1][LEX_L_BRACKET] = &StateM::E4;
+        table[s_Z1][LEX_L_SQ_BRACKET] = &StateM::E4;
+        table[s_Z1][LEX_LF] = &StateM::E4a;
+        table[s_Z1][LEX_R_BRACKET] = &StateM::E4;
+        table[s_Z1][LEX_SEMICOLON] = &StateM::E4;
+        
+        table[s_Z2][LEX_DIGIT] = &StateM::Z2b;
+        table[s_Z2][LEX_SPACE] = &StateM::Z2c;
+        table[s_Z2][LEX_R_SQ_BRACKET] = &StateM::Z2d; // final
+        table[s_Z2][LEX_COMMA] = &StateM::E4;
+
+        table[s_Z2][LEX_RATIO] = &StateM::E4;
+        table[s_Z2][LEX_AR_OPERATION] = &StateM::E4;
+        table[s_Z2][LEX_CHARACTER] = &StateM::E4;
+        table[s_Z2][LEX_COLON] = &StateM::E4;
+        table[s_Z2][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_Z2][LEX_L_BRACKET] = &StateM::E4;
+        table[s_Z2][LEX_L_SQ_BRACKET] = &StateM::E4;
+        table[s_Z2][LEX_LF] = &StateM::E4a;
+        table[s_Z2][LEX_R_BRACKET] = &StateM::E4;
+        table[s_Z2][LEX_SEMICOLON] = &StateM::E4;
 
         table[s_Z3][LEX_SPACE] = &StateM::Z3a;
-        table[s_Z3][LEX_L_BRACKET] = &StateM::Z3b;
-        */
+        table[s_Z3][LEX_R_SQ_BRACKET] = &StateM::Z2d;
+        table[s_Z3][LEX_COMMA] = &StateM::E4;
+
+        table[s_Z3][LEX_RATIO] = &StateM::E4;
+        table[s_Z3][LEX_AR_OPERATION] = &StateM::E4;
+        table[s_Z3][LEX_CHARACTER] = &StateM::E4;
+        table[s_Z3][LEX_COLON] = &StateM::E4;
+        table[s_Z3][LEX_DIGIT] = &StateM::Z2b;
+        table[s_Z3][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_Z3][LEX_L_BRACKET] = &StateM::E4;
+        table[s_Z3][LEX_L_SQ_BRACKET] = &StateM::E4;
+        table[s_Z3][LEX_LF] = &StateM::E4a;
+        table[s_Z3][LEX_R_BRACKET] = &StateM::E4;
+        table[s_Z3][LEX_SEMICOLON] = &StateM::E4;
+
+        table[s_Z4][LEX_SPACE] = &StateM::Z5a;
+        table[s_Z4][LEX_DIGIT] = &StateM::Z2a;
+
+        table[s_Z4][LEX_R_SQ_BRACKET] = &StateM::E4;
+        table[s_Z4][LEX_RATIO] = &StateM::E4;
+        table[s_Z4][LEX_AR_OPERATION] = &StateM::E4;
+        table[s_Z4][LEX_CHARACTER] = &StateM::E4;
+        table[s_Z4][LEX_COMMA] = &StateM::E4;
+        table[s_Z4][LEX_COLON] = &StateM::E4;
+        table[s_Z4][LEX_ERR_SYMB] = &StateM::E2;
+        table[s_Z4][LEX_L_BRACKET] = &StateM::E4;
+        table[s_Z4][LEX_L_SQ_BRACKET] = &StateM::E4;
+        table[s_Z4][LEX_LF] = &StateM::E4a;
+        table[s_Z4][LEX_R_BRACKET] = &StateM::E4;
+        table[s_Z4][LEX_SEMICOLON] = &StateM::E4;
+        
     }
 
     ~StateM()
     {
-        // TODO : deallocate memmory from table 
+        for (int i = 0; i < state_number; ++i) {
+            delete[] table[i];
+        }
+        delete[] table;
     }
 };
 
@@ -604,9 +675,14 @@ void StateM::StartDKA(const char *NameFile)
         RegisterStr += '\n';
         LineProcessing(RegisterStr);
     }
-    data_token k;
-    k.CToken = END_MARKER;
-    vecToken.emplace_back(k);
+
+    if (cur_state == s_G1a) {
+        vecToken.emplace_back(reg_str_comment, ERR_TOKEN);
+        vec_errors.emplace_back(to_string(reg_str_comment+1) + ": comment isn't closed");
+        flagAnalyzer = false;
+    }
+    
+    vecToken.emplace_back(0, END_MARKER);
     buff.close();
 }
 
