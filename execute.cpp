@@ -1,5 +1,5 @@
 #include "analyzer.h"
-
+#include "syntax.h"
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -13,19 +13,23 @@ int main(int argc, char *argv[])
         StateM programm1;
         programm1.StartDKA(argv[1]);
         PrintVec(vecToken);
-        cout << "SET_CONST = ";
-        print_set(set_const.begin(), set_const.end());
-        cout << "SET_VARIABLE = ";
-        print_set(set_var.begin(), set_var.end());
-        PrintErrors();
-    if (programm1.flagAnalyzer == true) {
-        cout << "ANALYZER: accept" << endl;
-    }
-    else {
-        cout << "Analyzer: acception error" << endl;
-        
-        return -1;
-    }
+        if (programm1.flagAnalyzer) {
+            cout << "SET_CONST = ";
+            print_set(set_const.begin(), set_const.end());
+            cout << "SET_VARIABLE = ";
+            print_set(set_var.begin(), set_var.end());
+            cout << "ANALYZER: accept" << endl;
+            Syntax syntax2;   
+            std::cout << "++++++\n";
+            syntax2.StartSyntax(); 
+            std::cout << "syntax: " << syntax2.flagSyntax << std::endl;
+        }
+        else {
+            PrintErrors();
+            cout << "Analyzer: acception error" << endl;
+            
+            return -1;
+        }
     } catch(exception e) {
         std::cerr <<  e.what() << std::endl;
     }

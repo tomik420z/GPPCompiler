@@ -59,7 +59,7 @@ enum TokenClass
 struct data_token
 {
     int num_str;
-    TokenClass CToken;
+    int CToken;
     std::any ptr;
         
     data_token() : num_str(0), CToken(), ptr() {}

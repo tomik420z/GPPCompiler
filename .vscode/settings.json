@@ -49,6 +49,7 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
-        "hash_set": "cpp"
+        "hash_set": "cpp",
+        "unordered_set": "cpp"
     }
 }

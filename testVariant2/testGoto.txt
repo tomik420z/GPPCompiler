@@ -1,0 +1,7 @@
+goto 123;
+dim var as uint;
+dim h as _hash;
+let y = x = ((100 % 10) + (((var)))) = w ;
+:123
+
+if (x + 20) >= y then 33

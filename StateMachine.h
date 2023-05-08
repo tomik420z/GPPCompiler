@@ -8,6 +8,7 @@
 #include <math.h>
 #include <list>
 #include <set>
+#include <array>
 #include "data_token.h"
 #include <unordered_set>
 #include "hash_set.h"
@@ -92,6 +93,7 @@ set<pair<string, bool>> SetVar;
 unordered_set<int> set_const;
 unordered_set<string> set_var;
 vector<string> vec_errors;
+
 class StateM
 {
 protected:
@@ -109,13 +111,17 @@ protected:
     TokenClass reg_token;
     hash_set reg_hash;
 
-    int state_number; 
-    int class_number; 
+    static constexpr int state_number = 32;
+    static constexpr int class_number = 14;
+    
+    
+
+public:
     typedef int (StateM::*function_pointer)();
-    function_pointer **table; 
-                              
-    void MemoryTable();
-    int A0();
+protected:
+
+    std::array<std::array<function_pointer, class_number>, state_number> table;                          
+    int A0();    
     int A0a();
 
     int B1();
@@ -262,14 +268,14 @@ public:
     friend void PrintLableList(set<int> &obj);
     friend void PrintConst(set<int> &obj);
 
+    StateM(const StateM&) = delete;
+    StateM& operator=(const StateM&) = delete;
+
     StateM()
     {
-        
         cur_state = s_A0;
-        state_number = 32;
-        class_number = 14;
         reg_num_str = 0;
-        MemoryTable();
+
 
         for (int i = 0; i < state_number; ++i)
             for (int j = 0; j < class_number; ++j)
@@ -646,10 +652,10 @@ public:
 
     ~StateM()
     {
-        for (int i = 0; i < state_number; ++i) {
+        /*for (int i = 0; i < state_number; ++i) {
             delete[] table[i];
         }
-        delete[] table;
+        delete[] table;*/
     }
 };
 
@@ -695,11 +701,5 @@ void StateM::LineProcessing(const string &RegisterStr)
     }
 }
 
-void StateM::MemoryTable()
-{
-    table = new function_pointer *[state_number];
-    for (size_t i = 0; i < state_number; ++i)
-        table[i] = new function_pointer[class_number];
-}
 
 #endif

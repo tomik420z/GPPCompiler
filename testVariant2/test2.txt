@@ -2,3 +2,4 @@ dim x as uint;
 load(x,y,z,u,v);
 load(x, y, z, u, v);
 put(t, 12+le);
+if x < y then 123 else 45

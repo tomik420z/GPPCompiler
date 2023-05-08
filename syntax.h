@@ -9,17 +9,78 @@
 #include "analyzer.h"
 using namespace std;
 
+
 enum TypeEl
 {
-    _S,
-    _T,
-    _R,
-    _A,
-    _C,
-    _B,
-    a,
-    d,
-    c,
+    _Program_,
+    _Program2_,
+    _Operator_,
+    _dim_,
+    _as_,
+    _type_,
+    _let_,
+    _for_,
+    _in_,
+    _next_,
+    _if_,
+    _then_,
+    _else_,
+    _load_,
+    _put_,
+    _goto_,
+    _switch_,
+    _case_,
+    _break_,
+    _raise_,
+    _end_switch_,
+    _dual_more_,
+    _variable_,
+    _constant_,
+    _bin_sum,
+    _bin_sub_,
+    _bin_mult_,
+    _bin_div_,
+    _bin_mod_,
+    _hash_union_,
+    _hash_intersec_,
+    _diff_,
+    _symm_diff_,
+    _acces_,
+    _pow_,
+    _hash_add_,
+    _left_bracket_,
+    _right_bracket_,
+    _comma_,
+    _semicolon_,
+    _assign_,
+    _ratio_,
+    _colon_,
+    _lable_,
+    _comment_,
+    _Expression_,
+    _Term_,
+    _E_list_,
+    _Factor_,
+    _T_list_,
+    _Test_,
+    _Dec_,
+    _Dec1_,
+    _Declaration_,
+    _Declare_,
+    _Nont_let_,
+    _List_let_,
+    _List_let1_,
+    _Nont_if_,
+    _Nont_load_,
+    _Load_list1_,
+    _Load_list2_,
+    _Nont_R_br_,
+    _Nont_put_,
+    _Expr_list1_,
+    _Nont_comma_,
+    _Nont_put1_,
+    _E_bracket_,
+    _Nont_for_,
     _Bottom_
 };
 
@@ -36,21 +97,15 @@ struct classific
     bool IsTerminal;
 };
 
-class Syntax : public StateM
+class Syntax
 {
 protected:
     list<data_token>::iterator VecIter;
     bool CheckRule(list<TypeEl> &temp, vector<pair<TypeEl, bool>> &Vec);
     typedef void (Syntax::*function_pointer)();
-    function_pointer **table1; // ������� ���������� �� ��������� ��������
-    enum StateSyntax
-    {
-        _ACCEPT,
-        _ERROR,
-        _PROCESSING
-    };
-    StateSyntax state;
-
+    function_pointer **table1; 
+    static constexpr int state_number = 70;
+    static constexpr int  class_number = 70;
 public:
     bool flagSyntax;
     list<TypeEl> store; // �������
@@ -99,8 +154,6 @@ public:
 
     Syntax()
     {
-        state_number = 72;
-        class_number = 72;
         transformation();         // ��������������� ������� ������������ �����
         ClassificationFunction(); // ������������� ������� ��� ��������� � �����������, ����������� - 0, ��������� - 1
         RuleInitialisation();     // ������������� ������
@@ -113,37 +166,31 @@ public:
         Filling_LS();             // ���������� ������� LS
         Filling_MR();             // ���������� ������� MR
         Filling_Bottom();
-
+        /*
         PrintBeg();
         PrintBack();
         PrintCompFirst1();
-
-        for (size_t i = 0; i < 8; ++i)
-        {
-            for (size_t j = 0; j < 8; ++j)
-            {
-                (this->*table1[i][j])();
-            }
-            cout << "\n";
-        }
+    */
     }
 
-    void Init() { store.emplace_front(_Bottom_); }
+    void Init()
+    {
+        store.emplace_front(_Bottom_);
+    }
 
     void StartSyntax()
     {
-        state = _PROCESSING;
-        Init();
-        VecIter = vecToken.begin();
-        while (state == _PROCESSING)
+        Init();                     
+        VecIter = vecToken.begin(); 
+        while (true)
         {
-            if (store.size() <= 2 && store.back() == _S && VecIter->CToken == _Bottom_)
+            if (store.size() <= 2 && store.back() == _Program_ && VecIter->CToken == _Bottom_)
                 return accept();
 
             auto it = store.end();
             --it;
             (this->*table1[*it][VecIter->CToken])();
-            if (reg_table == _EQ)
+            if (reg_table == _EQ) // ������� �� ������ �������� ��������
                 Transfer();
             else if (reg_table == _LS)
                 Transfer();
@@ -169,14 +216,16 @@ public:
             auto it1 = store.end();
             --it1;
             --it1;
-
+            // ����� �������, �� �������� ��� ������ ������
             (this->*table1[*it1][*it])();
             temp.push_front(*it);
             store.pop_back();
         }
 
+        // ���� �������
         for (size_t i = 0; i < rules.size(); ++i)
         {
+            // ���� ������� ���������
             if (CheckRule(temp, rules[i].second))
             {
                 store.push_back(rules[i].first);
@@ -184,11 +233,10 @@ public:
             }
         }
 
-        if (store.size() <= 2 && store.back() == _S && VecIter->CToken == _Bottom_)
+        if (store.size() <= 2 && store.back() == _Program_ && VecIter->CToken == _Bottom_)
             return accept();
 
-        cout << "there were no rules for convolution" << endl;
-        return Error();
+        throw "�� ������� ������� ��� ������";
     }
 };
 
@@ -196,192 +244,411 @@ void Syntax::ClassificationFunction()
 {
 
     El = {
-        {{_S}, {0}},
-        {{_T}, {0}},
-        {{_R}, {0}},
-        {{_A}, {0}},
-        {{_C}, {0}},
-        {{_B}, {0}},
-        {{a}, {1}},
-        {{d}, {1}},
-        {{c}, {1}},
-        {{_Bottom_}, {0}}};
+            {{_Program_}, {0}},
+            {{_Program2_}, {0}},
+            {{_Operator_}, {0}},
+            {{_dim_}, {1}},
+            {{_as_}, {1}},
+            {{_type_}, {1}},
+            {{_let_}, {1}},
+            {{_for_}, {1}},
+            {{_in_}, {1}},
+            {{_next_}, {1}},
+            {{_if_}, {1}},
+            {{_then_}, {1}},
+            {{_else_}, {1}},
+            {{_load_}, {1}},
+            {{_put_}, {1}},
+            {{_goto_}, {1}},
+            {{_switch_}, {1}},
+            {{_case_}, {1}},
+            {{_break_}, {1}},
+            {{_raise_}, {1}},
+            {{_end_switch_}, {1}},
+            {{_dual_more_}, {1}},
+            {{_variable_}, {1}},
+            {{_constant_}, {1}},
+            {{_bin_sum}, {1}},
+            {{_bin_sub_}, {1}},
+            {{_bin_mult_}, {1}},
+            {{_bin_div_}, {1}},
+            {{_bin_mod_}, {1}},
+            {{_hash_union_}, {1}},
+            {{_hash_intersec_}, {1}},
+            {{_diff_}, {1}},
+            {{_symm_diff_}, {1}},
+            {{_acces_}, {1}},
+            {{_pow_}, {1}},
+            {{_hash_add_}, {1}},
+            {{_left_bracket_}, {1}},
+            {{_right_bracket_}, {1}},
+            {{_comma_}, {1}},
+            {{_semicolon_}, {1}},
+            {{_assign_}, {1}},
+            {{_ratio_}, {1}},
+            {{_colon_}, {1}},
+            {{_lable_}, {1}},
+            {{_comment_}, {1}},
+            {{_Expression_}, {0}},
+            {{_Term_}, {0}},
+            {{_E_list_}, {0}},
+            {{_Factor_}, {0}},
+            {{_T_list_}, {0}},
+            {{_Test_}, {0}},
+            {{_Dec_}, {0}},
+            {{_Dec1_}, {0}},
+            {{_Declaration_}, {0}},
+            {{_Declare_}, {0}},
+            {{_Nont_let_}, {0}},
+            {{_List_let_}, {0}},
+            {{_List_let1_}, {0}},
+            {{_Nont_if_}, {0}},
+            {{_Nont_load_}, {0}},
+            {{_Load_list1_}, {0}},
+            {{_Load_list2_}, {0}},
+            {{_Nont_R_br_}, {0}},
+            {{_Nont_put_}, {0}},
+            {{_Expr_list1_}, {0}},
+            {{_Nont_comma_}, {0}},
+            {{_Nont_put1_}, {0}},
+            {{_E_bracket_}, {0}},
+            {{_Nont_for_}, {0}},
+            {{_Bottom_}, {0}}
+
+    };
 }
 
 void Syntax::RuleInitialisation()
 {
-    rules.resize(8);
-    rules[0].first = _S;
-    rules[0].second = {El[_T], El[_S]};
+    rules.resize(32);
 
-    rules[1].first = _S;
-    rules[1].second = {El[_T]};
+    rules[0].first = _Program_;
+    rules[0].second = {El[_Operator_]};
 
-    rules[2].first = _T;
-    rules[2].second = {El[a], El[_R], El[_A]};
+    rules[1].first = _Program_;
+    rules[1].second = {El[_Operator_], El[_Program_]};
+    // goto
+    rules[2].first = _Operator_;
+    rules[2].second = {El[_goto_], El[_semicolon_]};
 
-    rules[3].first = _A;
-    rules[3].second = {El[a]};
+    rules[3].first = _Expression_;
+    rules[3].second = {El[_Term_]};
 
-    rules[4].first = _B;
-    rules[4].second = {El[_C], El[c]};
+    rules[4].first = _Expression_;
+    rules[4].second = {El[_Term_], El[_E_list_]};
 
-    rules[5].first = _R;
-    rules[5].second = {El[_B], El[_R], El[_B]};
+    rules[5].first = _E_list_;
+    rules[5].second = {El[_bin_sum], El[_Term_], El[_E_list_]};
 
-    rules[6].first = _R;
-    rules[6].second = {El[d]};
+    rules[6].first = _E_list_;
+    rules[6].second = {El[_bin_sum], El[_Term_]};
 
-    rules[7].first = _C;
-    rules[7].second = {El[c]};
+    rules[7].first = _E_list_;
+    rules[7].second = {El[_bin_sub_], El[_Term_], El[_E_list_]};
+
+    rules[8].first = _E_list_;
+    rules[8].second = {El[_bin_sub_], El[_Term_]};
+
+    rules[9].first = _Term_;
+    rules[9].second = {El[_Factor_]};
+
+    rules[10].first = _Term_;
+    rules[10].second = {El[_Factor_], El[_T_list_]};
+
+    rules[11].first = _T_list_;
+    rules[11].second = {El[_bin_mult_], El[_Factor_], El[_T_list_]};
+
+    rules[12].first = _T_list_;
+    rules[12].second = {El[_bin_mult_], El[_Factor_]};
+
+    rules[13].first = _T_list_;
+    rules[13].second = {El[_bin_div_], El[_Factor_], El[_T_list_]};
+
+    rules[14].first = _T_list_;
+    rules[14].second = {El[_bin_div_], El[_Factor_]};
+
+    rules[15].first = _T_list_;
+    rules[15].second = {El[_bin_mod_], El[_Factor_], El[_T_list_]};
+
+    rules[16].first = _T_list_;
+    rules[16].second = {El[_bin_mod_], El[_Factor_]};
+
+    rules[17].first = _Factor_;
+    rules[17].second = {El[_left_bracket_], El[_Expression_], El[_right_bracket_]};
+
+    rules[18].first = _Factor_;
+    rules[18].second = {El[_constant_]};
+
+    rules[19].first = _Factor_;
+    rules[19].second = {El[_variable_]};
+    
+    // test
+    rules[20].first = _Test_;
+    rules[20].second = {El[_Expression_], El[_ratio_], El[_Expression_]};
+    
+    // Объявдение
+    rules[21].first = _Operator_;
+    rules[21].second = {El[_Declaration_], El[_as_], El[_type_], El[_semicolon_]};
+
+    rules[22].first = _Declaration_;
+    rules[22].second = {El[_dim_], El[_variable_]};
+
+    // _Let
+    rules[23].first = _Operator_;
+    rules[23].second = {El[_Nont_let_], El[_semicolon_]};
+
+    rules[24].first = _Nont_let_;
+    rules[24].second = {El[_let_], El[_variable_], El[_assign_], El[_List_let_]};
+
+    rules[25].first = _List_let_;
+    rules[25].second = {El[_variable_], El[_assign_], El[_List_let_]};
+
+    rules[26].first = _List_let_;
+    rules[26].second = {El[_List_let1_]};
+
+    rules[27].first = _List_let1_;
+    rules[27].second = {El[_Expression_]};
+
+    // _Lable
+    rules[28].first = _Operator_;
+    rules[28].second = {El[_lable_]};
+    // if Operator
+    rules[29].first = _Operator_;
+    rules[29].second = {El[_Nont_if_], El[_else_]};
+
+    rules[30].first = _Operator_;
+    rules[30].second = {El[_Nont_if_]};
+
+    rules[31].first = _Nont_if_;
+    rules[31].second = {El[_if_], El[_Test_], El[_then_]};
+    
+
+
+
+    //rules[32].first = _Nont_if_;
+    //rules[32].second = {El[_Goto], El[_When], El[_Test_]};
+    // _Semicolon
+    ///rules[33].first = _Operator_;
+    ///rules[33].second = {El[_Semicolon]};
+    /*
+    // FAIL
+    rules[34].first = _Operator_;
+    rules[34].second = {El[_Fail], El[_Semicolon]};
+    // _Comment
+    rules[35].first = _Operator_;
+    rules[35].second = {El[_Comment]};
+    // _Load
+    rules[36].first = _Operator_;
+    rules[36].second = {El[_Nont_load_], El[_Semicolon]};
+
+    rules[37].first = _Nont_load_;
+    rules[37].second = {El[_Load_list1_], El[_Nont_R_br_]};
+
+    rules[38].first = _Load_list1_;
+    rules[38].second = {El[_Load], El[_Var]};
+
+    rules[39].first = _Load_list1_;
+    rules[39].second = {El[_Load_list2_], El[_Var]};
+
+    rules[40].first = _Load_list2_;
+    rules[40].second = {El[_Load_list1_], El[_Comma]};
+
+    rules[41].first = _Nont_R_br_;
+    rules[41].second = {El[_Right_bracket]};
+    // _Put
+    rules[42].first = _Operator_;
+    rules[42].second = {El[_Nont_put_], El[_Semicolon]};
+
+    rules[43].first = _Nont_put_;
+    rules[43].second = {El[_Put], El[_Expr_list1_]};
+
+    rules[44].first = _Expr_list1_;
+    rules[44].second = {El[_Expression_], El[_Nont_comma_], El[_Expr_list1_]};
+
+    rules[45].first = _Expr_list1_;
+    rules[45].second = {El[_Expression_], El[_Nont_comma_], El[_E_bracket_]};
+
+    rules[46].first = _Operator_;
+    rules[46].second = {El[_Nont_put1_], El[_Semicolon]};
+
+    rules[47].first = _Nont_put1_;
+    rules[47].second = {El[_Put], El[_E_bracket_]};
+
+    rules[48].first = _Nont_comma_;
+    rules[48].second = {El[_Comma]};
+
+    rules[49].first = _E_bracket_;
+    rules[49].second = {El[_Expression_], El[_Right_bracket]};
+    // _For
+    rules[50].first = _Operator_;
+    rules[50].second = {El[_Nont_for_], El[_Next]};
+
+    rules[51].first = _Nont_for_;
+    rules[51].second = {El[_For], El[_Each], El[_Var], El[_In], El[_List_let1_], El[_Do], El[_Program_]};
+    */
 }
 
 void Syntax::transformation()
 {
-    /*
     for (list<data_token>::iterator el = vecToken.begin(); el != vecToken.end(); ++el)
     {
         switch (el->CToken)
         {
-        case SEMICOLON:
-            el->CToken = _Semicolon;
-            break;
-        case DIM:
-            el->CToken = _Dim;
-            break;
-        case TYPE:
-            el->CToken = _Type;
-            break;
-        case AS:
-            el->CToken = _As;
-            break;
-        case LET:
-            el->CToken = _Let;
-            break;
-        case FOR:
-            el->CToken = _For;
-            break;
-        case EACH:
-            el->CToken = _Each;
-            break;
-        case IN:
-            el->CToken = _In;
-            break;
-        case NEXT:
-            el->CToken = _Next;
-            break;
-        case GOTO:
-            el->CToken = _Goto;
-            break;
-        case WHEN:
-            el->CToken = _When;
-            break;
-        case LOAD:
-            el->CToken = _Load;
-            break;
-        case PUT:
-            el->CToken = _Put;
-            break;
-        case LABLE:
-            el->CToken = _Lable;
-            break;
-        case ON:
-            el->CToken = _On;
-            break;
-        case CASE:
-            el->CToken = _Case;
-            break;
-        case FAIL:
-            el->CToken = _Fail;
-            break;
-        case COMMENT:
-            el->CToken = _Comment;
-            break;
-        case BIN_OPERATION:
-            switch (*static_cast<TypeOperation *>(el->ptr))
-            {
+            case DIM:
+                el->CToken = _dim_; 
+                break;
+            case AS:
+                el->CToken = _as_;
+                break;
+            case UINT:
+                el->CToken = _type_;
+                break;
+            case HASH:
+                el->CToken = _type_;
+                break;
+            case LET:
+                el->CToken = _let_;
+                break;
+            case FOR:
+                el->CToken = _for_;
+                break;
+            case IN:
+                el->CToken = _in_;
+                break;
+            case NEXT:
+                el->CToken = _next_;
+                break;
+            case IF:
+                el->CToken = _if_;
+                break;
+            case THEN:
+                el->CToken = _then_;
+                break;
+            case ELSE:
+                el->CToken = _else_;
+                break;
+            case LOAD:
+                el->CToken = _load_;
+                break;
+            case PUT:
+                el->CToken = _put_;
+                break;
+            case GOTO:
+                el->CToken = _goto_;
+                break;
+            case SWITCH:
+                el->CToken = _switch_;
+                break;
+            case CASE:
+                el->CToken = _case_;
+                break;
+            case BREAK:
+                el->CToken = _break_;
+                break;
+            case RAISE:
+                el->CToken = _raise_;
+                break;
+            case END_SWITCH:
+                el->CToken = _end_switch_;
+                break;
+            case DUAL_MORE:
+                el->CToken = _dual_more_;
+                break;
+            case VARIABLE:
+                el->CToken = _variable_;
+                break;
+            case CONSTANT:
+                el->CToken = _constant_;
+                break;
+            case HASH_CONST:
+                el->CToken = _constant_; 
             case BIN_SUM:
-                el->CToken = _Sum;
+                el->CToken = _bin_sum;
                 break;
             case BIN_SUB:
-                el->CToken = _Sub;
+                el->CToken = _bin_sub_;
                 break;
             case BIN_MULT:
-                el->CToken = _Mult;
+                el->CToken = _bin_mod_;
                 break;
             case BIN_DIV:
-                el->CToken = _Div;
+                el->CToken = _bin_div_;
                 break;
             case BIN_MOD:
-                el->CToken = _Mod;
+                el->CToken = _bin_mod_;
                 break;
-            }
-            break;
-        case ATTITUDE:
-            el->CToken = _Attitide;
-            break;
-        case LEFT_BRACKET:
-            el->CToken = _Left_bracket;
-            break;
-        case RIGHT_BRACKET:
-            el->CToken = _Right_bracket;
-            break;
-        case COMMA:
-            el->CToken = _Comma;
-            break;
-        case VARIABLE:
-            el->CToken = _Var;
-            break;
-        case CONSTANT:
-            el->CToken = _Const;
-            break;
-        case ASSIGN:
-            el->CToken = _Assign;
-            break;
-        case COLON:
-            el->CToken = _Colon;
-            break;
-        case DO:
-            el->CToken = _Do;
-            break;
-        case END_MARKER:
-            el->CToken = _Bottom_;
-            break;
+            case UNION:
+                el->CToken = _type_;
+                break;
+            case HASH_INTERSEC:
+                el->CToken = _hash_intersec_;
+                break;
+            case DIFF:
+                el->CToken = _diff_;
+                break;
+            case SIMDIFF:
+                el->CToken = _symm_diff_;
+                break;
+            case ACCESS:
+                el->CToken = _acces_;
+                break;
+            case POW:
+                el->CToken = _pow_;
+                break;
+            case HASH_ADD:
+                el->CToken = _hash_add_;
+                break;
+            case LEFT_BRACKET:
+                el->CToken = _left_bracket_;
+                break;
+            case RIGHT_BRACKET:
+                el->CToken = _right_bracket_;
+                break;
+            case COMMA:
+                el->CToken = _comma_;
+                break;
+            // case END_MARKER:
+            //     el->CToken = _end_marker_;
+            //     break;
+            case SEMICOLON:
+                el->CToken = _semicolon_;
+                break;
+            case ASSIGN:
+                el->CToken = _assign_;
+                break;
+            case RATIO:
+                el->CToken = _ratio_;
+                break;
+            case COLON:
+                el->CToken = _colon_;
+                break;
+            case LABLE:
+                el->CToken = _lable_;
+                break;
+            case COMMENT:
+                el->CToken = _comment_;
+                break;
+            case TYPE_LI:
+                el->CToken = _type_;
+                break;
+            case TYPE_UINT:
+                el->CToken = _type_;
+                break;
+            case END_MARKER: 
+                el->CToken = _Bottom_;
+                break;
         }
     }
-    */
 }
 
-void Syntax::Ls()
-{
-    reg_table = _LS;
-    cout << " < ";
-}
+void Syntax::Ls() { reg_table = _LS; }
 
-void Syntax::Mr()
-{
-    reg_table = _MR;
-    cout << " > ";
-}
-void Syntax::Eq()
-{
-    reg_table = _EQ;
-    cout << " = ";
-}
+void Syntax::Mr() { reg_table = _MR; }
+void Syntax::Eq() { reg_table = _EQ; }
 
-void Syntax::Error()
-{
-    cout << "   ";
+void Syntax::Error() { flagSyntax = false; }
 
-    state = _ERROR;
-    flagSyntax = false;
-}
-
-void Syntax::accept()
-{
-    state = _ACCEPT;
-    flagSyntax = true;
-}
+void Syntax::accept() { flagSyntax = true; }
 
 bool Syntax::CheckRule(list<TypeEl> &temp, vector<pair<TypeEl, bool>> &Vec)
 {
@@ -455,14 +722,15 @@ void Syntax::Filling_LS()
 {
     TypeEl temp1, temp2;
 
-    for (size_t i = 0; i < rules.size(); ++i)
+    for (size_t i = 0; i < rules.size(); ++i) // ������� ������
     {
-        for (size_t j = 0; j < rules[i].second.size() - 1; ++j)
+        for (size_t j = 0; j < rules[i].second.size() - 1; ++j) // ������ �������� �������
         {
             temp1 = rules[i].second[j].first;
             temp2 = rules[i].second[j + 1].first;
-            if (rules[i].second[j + 1].second == 0)
+            if (rules[i].second[j + 1].second == 0) // ���� ������ ������� ���� ����������, �� ��������� �������
             {
+                // ���������� ������
                 for (int k = 0; k < BeginList[temp2].size(); ++k)
                     if (CheckTableLs(temp1, BeginList[temp2][k].first))
                         table1[temp1][BeginList[temp2][k].first] = &Syntax::Ls;
@@ -614,34 +882,7 @@ void Syntax::PrintCompFirst1()
     cout << '\n';
 }
 
-void Syntax::PrintElementCl(const TypeEl &el)
-{
-
-    switch (el)
-    {
-    case _S:
-        cout << "S";
-        break;
-    case _T:
-        cout << "T";
-        break;
-    case _R:
-        cout << "R";
-        break;
-    case _A:
-        cout << "K";
-        break;
-    case a:
-        cout << "a";
-        break;
-    case d:
-        cout << "d";
-        break;
-    case c:
-        cout << "c";
-        break;
-    }
-}
+void Syntax::PrintElementCl(const TypeEl &el) {}
 
 bool Syntax::FindEl(const int &index, const TypeEl &el)
 {
