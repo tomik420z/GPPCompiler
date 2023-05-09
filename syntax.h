@@ -31,6 +31,7 @@ enum TypeEl
     _switch_,
     _case_,
     _break_,
+    _default_,
     _raise_,
     _end_switch_,
     _dual_more_,
@@ -81,6 +82,12 @@ enum TypeEl
     _Nont_put1_,
     _E_bracket_,
     _Nont_for_,
+    _nont_switch_,   
+    _list_cases_,
+    _list_cases_2_,
+    _lc1_,
+    _nont_default_,
+    _nont_colon_,
     _Bottom_
 };
 
@@ -104,8 +111,8 @@ protected:
     bool CheckRule(list<TypeEl> &temp, vector<pair<TypeEl, bool>> &Vec);
     typedef void (Syntax::*function_pointer)();
     function_pointer **table1; 
-    static constexpr int state_number = 70;
-    static constexpr int  class_number = 70;
+    static constexpr int state_number = 77;
+    static constexpr int  class_number = 77;
 public:
     bool flagSyntax;
     list<TypeEl> store; // �������
@@ -166,11 +173,6 @@ public:
         Filling_LS();             // ���������� ������� LS
         Filling_MR();             // ���������� ������� MR
         Filling_Bottom();
-        /*
-        PrintBeg();
-        PrintBack();
-        PrintCompFirst1();
-    */
     }
 
     void Init()
@@ -263,6 +265,7 @@ void Syntax::ClassificationFunction()
             {{_switch_}, {1}},
             {{_case_}, {1}},
             {{_break_}, {1}},
+            {{_default_}, {1}},
             {{_raise_}, {1}},
             {{_end_switch_}, {1}},
             {{_dual_more_}, {1}},
@@ -313,14 +316,19 @@ void Syntax::ClassificationFunction()
             {{_Nont_put1_}, {0}},
             {{_E_bracket_}, {0}},
             {{_Nont_for_}, {0}},
+            {{_nont_switch_}, {0}},   
+            {{_list_cases_}, {0}},
+            {{_list_cases_2_}, {0}},
+            {{_lc1_}, {0}},
+            {{_nont_default_}, {0}},
+            {{_nont_colon_}, {0}},
             {{_Bottom_}, {0}}
-
     };
 }
 
 void Syntax::RuleInitialisation()
 {
-    rules.resize(32);
+    rules.resize(56);
 
     rules[0].first = _Program_;
     rules[0].second = {El[_Operator_]};
@@ -386,7 +394,7 @@ void Syntax::RuleInitialisation()
     rules[20].first = _Test_;
     rules[20].second = {El[_Expression_], El[_ratio_], El[_Expression_]};
     
-    // Объявдение
+    // DIM
     rules[21].first = _Operator_;
     rules[21].second = {El[_Declaration_], El[_as_], El[_type_], El[_semicolon_]};
 
@@ -422,21 +430,20 @@ void Syntax::RuleInitialisation()
     rules[31].first = _Nont_if_;
     rules[31].second = {El[_if_], El[_Test_], El[_then_]};
     
-
-
-
-    //rules[32].first = _Nont_if_;
-    //rules[32].second = {El[_Goto], El[_When], El[_Test_]};
     // _Semicolon
-    ///rules[33].first = _Operator_;
-    ///rules[33].second = {El[_Semicolon]};
-    /*
-    // FAIL
+    rules[32].first = _Operator_;
+    rules[32].second = {El[_semicolon_]};
+    
+    // raise
+    rules[33].first = _Operator_;
+    rules[33].second = {El[_raise_], El[_semicolon_]};
+    // Comment
     rules[34].first = _Operator_;
-    rules[34].second = {El[_Fail], El[_Semicolon]};
-    // _Comment
+    rules[34].second = {El[_comment_]};
+    //LOAD 
     rules[35].first = _Operator_;
-    rules[35].second = {El[_Comment]};
+    rules[35].second = {El[_load_], El[_semicolon_]};
+    /*
     // _Load
     rules[36].first = _Operator_;
     rules[36].second = {El[_Nont_load_], El[_Semicolon]};
@@ -455,30 +462,77 @@ void Syntax::RuleInitialisation()
 
     rules[41].first = _Nont_R_br_;
     rules[41].second = {El[_Right_bracket]};
+    */
     // _Put
-    rules[42].first = _Operator_;
-    rules[42].second = {El[_Nont_put_], El[_Semicolon]};
+    rules[36].first = _Operator_;
+    rules[36].second = {El[_Nont_put_], El[_semicolon_]};
 
-    rules[43].first = _Nont_put_;
-    rules[43].second = {El[_Put], El[_Expr_list1_]};
+    rules[37].first = _Nont_put_;
+    rules[37].second = {El[_put_], El[_Expr_list1_]};
 
-    rules[44].first = _Expr_list1_;
-    rules[44].second = {El[_Expression_], El[_Nont_comma_], El[_Expr_list1_]};
+    rules[38].first = _Expr_list1_;
+    rules[38].second = {El[_Expression_], El[_Nont_comma_], El[_Expr_list1_]};
 
-    rules[45].first = _Expr_list1_;
-    rules[45].second = {El[_Expression_], El[_Nont_comma_], El[_E_bracket_]};
+    rules[39].first = _Expr_list1_;
+    rules[39].second = {El[_Expression_], El[_Nont_comma_], El[_E_bracket_]};
 
-    rules[46].first = _Operator_;
-    rules[46].second = {El[_Nont_put1_], El[_Semicolon]};
+    rules[40].first = _Operator_;
+    rules[40].second = {El[_Nont_put1_], El[_semicolon_]};
 
-    rules[47].first = _Nont_put1_;
-    rules[47].second = {El[_Put], El[_E_bracket_]};
+    rules[41].first = _Nont_put1_;
+    rules[41].second = {El[_put_], El[_E_bracket_]};
 
-    rules[48].first = _Nont_comma_;
-    rules[48].second = {El[_Comma]};
+    rules[42].first = _Nont_comma_;
+    rules[42].second = {El[_comma_]};
 
-    rules[49].first = _E_bracket_;
-    rules[49].second = {El[_Expression_], El[_Right_bracket]};
+    rules[43].first = _E_bracket_;
+    rules[43].second = {El[_Expression_], El[_right_bracket_]};
+
+    // switch
+    rules[44].first = _Operator_;
+    rules[44].second = {El[_nont_switch_], El[_end_switch_], El[_semicolon_]};
+
+    rules[45].first = _nont_switch_;
+    rules[45].second = {El[_switch_],  El[_Expression_], El[_right_bracket_], El[_list_cases_]};
+
+    rules[46].first = _list_cases_;
+    rules[46].second = {El[_list_cases_2_], El[_list_cases_]};
+
+    rules[47].first = _list_cases_;
+    rules[47].second = {El[_list_cases_2_]};
+
+    rules[48].first = _list_cases_2_;
+    rules[48].second = {El[_lc1_], El[_nont_colon_], El[_Program2_]};
+
+    rules[49].first = _lc1_;
+    rules[49].second = {El[_case_], El[_constant_]};
+
+    rules[50].first = _list_cases_;
+    rules[50].second = {El[_nont_default_]};
+
+    rules[51].first = _nont_default_;
+    rules[51].second = {El[_default_], El[_nont_colon_], El[_Program2_]};
+
+    rules[52].first = _nont_colon_;
+    rules[52].second = {El[_colon_], El[_Program_]};
+
+    rules[53].first = _Program2_;
+    rules[53].second = {El[_break_], El[_Program_]};
+
+    rules[54].first = _nont_default_;
+    rules[54].second = {El[_default_], El[_nont_colon_]};
+    
+    rules[55].first = _list_cases_2_;
+    rules[55].second = {El[_lc1_], El[_nont_colon_]};
+
+
+    //rules[53].first = _list_cases_2_;
+    //rules[53].second = {El[_lc1_], El[_colon_], El[_Program_]};
+
+    // rules[54].first = _Program2_;
+    // rules[54].second = {El[_Program_]};
+    // constant expression for switch
+    /*
     // _For
     rules[50].first = _Operator_;
     rules[50].second = {El[_Nont_for_], El[_Next]};
@@ -544,6 +598,9 @@ void Syntax::transformation()
                 break;
             case BREAK:
                 el->CToken = _break_;
+                break;
+            case DEFAULT:
+                el->CToken = _default_;
                 break;
             case RAISE:
                 el->CToken = _raise_;

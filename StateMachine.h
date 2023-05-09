@@ -34,8 +34,6 @@ enum SymbolToken
     LEX_END_MARKET
 };
 
-
-
 enum TypeRatio
 {
     LESS,
@@ -64,6 +62,13 @@ enum States
     s_H3,
     s_H4,
     s_H5,
+    s_H6,
+    s_H7,
+    s_H8,
+    s_L1,
+    s_L2,
+    s_L3,
+    s_L4,
     s_W1,
     s_G1,
     s_G1a,
@@ -75,7 +80,7 @@ enum States
     s_R1,
     s_Z1,
     s_Z2,
-    s_Z3, 
+    s_Z3,
     s_Z4,
     s_P1,
     s_Error,
@@ -88,8 +93,8 @@ struct PairToken
     char value;
 };
 
-list<data_token> vecToken;      
-set<pair<string, bool>> SetVar; 
+list<data_token> vecToken;
+set<pair<string, bool>> SetVar;
 unordered_set<int> set_const;
 unordered_set<string> set_var;
 vector<string> vec_errors;
@@ -105,23 +110,23 @@ protected:
 
     int reg_str_comment;
 
+    std::vector<std::string> reg_load_names;
+
     char register_ratio;
     int cur_state;
     TokenClass register_ar_operations;
     TokenClass reg_token;
     hash_set reg_hash;
 
-    static constexpr int state_number = 32;
+    static constexpr int state_number = 39;
     static constexpr int class_number = 14;
-    
-    
 
 public:
     typedef int (StateM::*function_pointer)();
-protected:
 
-    std::array<std::array<function_pointer, class_number>, state_number> table;                          
-    int A0();    
+protected:
+    std::array<std::array<function_pointer, class_number>, state_number> table;
+    int A0();
     int A0a();
 
     int B1();
@@ -136,14 +141,14 @@ protected:
     int B1u();
 
     int C1a();
-    int C1b();  
+    int C1b();
     int C1c();
     int C1d();
     int C1e();
     int C1f();
     int C1g();
     int C1h();
-    int C1i();  
+    int C1i();
     int C1l();
 
     int D1();
@@ -176,6 +181,32 @@ protected:
     int H5();
     int H5a();
     int H5b();
+    int H6();
+    int H6a();
+
+    int H7();
+    int H7a();
+    int H7b();
+
+    // break;
+    int H8(); // create token [break;]
+    int H8a(); // spaces 
+    int H8b(); // LF
+
+    int L1();
+    int L1a();
+
+    int L2();
+    int L2a();
+
+    int L3a();
+    int L3b();
+
+    int L4();
+    int L4a();
+    int L4b();
+    int L5();
+
     int K1();
 
     int K2();
@@ -192,11 +223,10 @@ protected:
     int G1a();
     int G1b();
     int G1c();
-    
 
     int M1();
     int M2();
-    
+
     int R1();
     int R1a();
 
@@ -205,46 +235,51 @@ protected:
     int T1b();
     int T2();
     int T2a();
+    int T1e();
+    int T1f();
+
+    int T2c();
+    int T2d();
 
     int S1a();
     int S1b();
     int S1c();
 
-    int Z1(); // считать [
-    int Z1a(); // считать пробелы 
-    int Z1b();  // ]
+    int Z1();  // считать [
+    int Z1a(); // считать пробелы
+    int Z1b(); // ]
 
-    int Z2a();  // считать первую цифру 
-    int Z2b();  // считать остальные цифры числа  
-    int Z2c();  // пробел после цифры 
-    int Z2d();  // считать ] 
-    int Z2e();  // считать , 
+    int Z2a(); // считать первую цифру
+    int Z2b(); // считать остальные цифры числа
+    int Z2c(); // пробел после цифры
+    int Z2d(); // считать ]
+    int Z2e(); // считать ,
 
-    int Z3a(); // считатть остальные проблелы 
-    int Z3d(); // считать ] 
+    int Z3a(); // считатть остальные проблелы
+    int Z3d(); // считать ]
     int Z3e(); // считать ,
 
-    int Z4a(); // счиать пробелы 
-    int Z4b(); // считать цифру 
+    int Z4a(); // счиать пробелы
+    int Z4b(); // считать цифру
 
     int Z5a();
 
-    int E1(); //ошибка переменной
+    int E1(); // ошибка переменной
     int E1a();
-    int E2(); //символы
+    int E2(); // символы
     int E2a();
-    int E3(); //операции
+    int E3(); // операции
     int E3a();
-    int E4(); //хэш
+    int E4(); // хэш
     int E4a();
-    int E5(); //метки
+    int E5(); // метки
     int E5a();
-    int E6(); //raise
+    int E6(); // raise
     int E6a();
-    int E7(); //comment
+    int E7(); // comment
     int E7a();
     int E8();
-    int E9(); //end switch
+    int E9(); // end switch
     int E9a();
     int E10();
 
@@ -260,47 +295,46 @@ protected:
 
 public:
     bool flagAnalyzer;
-    set<int> SetConst; 
-    
-    void transliterator(char ch);                 
-    void StartDKA(const char *NameFile);            
-    void LineProcessing(const string &RegisterStr); 
+    set<int> SetConst;
+
+    void transliterator(char ch);
+    void StartDKA(const char *NameFile);
+    void LineProcessing(const string &RegisterStr);
     friend void PrintLableList(set<int> &obj);
     friend void PrintConst(set<int> &obj);
 
-    StateM(const StateM&) = delete;
-    StateM& operator=(const StateM&) = delete;
+    StateM(const StateM &) = delete;
+    StateM &operator=(const StateM &) = delete;
 
     StateM()
     {
         cur_state = s_A0;
         reg_num_str = 0;
 
-
         for (int i = 0; i < state_number; ++i)
             for (int j = 0; j < class_number; ++j)
                 table[i][j] = &StateM::Error1;
-        
-        table[s_A0][LEX_SPACE] = &StateM::A0; //пропуск пробелов
-        table[s_A0][LEX_LF] = &StateM::A0a; //перевод строки, регистр строки +1
-        table[s_A0][LEX_SEMICOLON] = &StateM::D1; //создание лексемы ;
-        table[s_A0][LEX_DIGIT] = &StateM::B1;   // создание числа
+
+        table[s_A0][LEX_SPACE] = &StateM::A0;     // пропуск пробелов
+        table[s_A0][LEX_LF] = &StateM::A0a;       // перевод строки, регистр строки +1
+        table[s_A0][LEX_SEMICOLON] = &StateM::D1; // создание лексемы ;
+        table[s_A0][LEX_DIGIT] = &StateM::B1;     // создание числа
         table[s_A0][LEX_AR_OPERATION] = &StateM::G1;
         table[s_A0][LEX_RATIO] = &StateM::F1;
         table[s_A0][LEX_CHARACTER] = &StateM::C1a;
         table[s_A0][LEX_L_BRACKET] = &StateM::R1;
         table[s_A0][LEX_R_BRACKET] = &StateM::R1;
         table[s_A0][LEX_COLON] = &StateM::T1;
-        table[s_A0][LEX_COMMA] =&StateM::S1a;
+        table[s_A0][LEX_COMMA] = &StateM::S1a;
         table[s_A0][LEX_L_SQ_BRACKET] = &StateM::Z1;
 
         table[s_A0][LEX_R_SQ_BRACKET] = &StateM::E4;
 
         table[s_A0][LEX_ERR_SYMB] = &StateM::E2;
 
-        table[s_W1][LEX_AR_OPERATION] =&StateM::E3;
-    
-        table[s_W1][LEX_SPACE] = &StateM::G1e; 
+        table[s_W1][LEX_AR_OPERATION] = &StateM::E3;
+
+        table[s_W1][LEX_SPACE] = &StateM::G1e;
         table[s_W1][LEX_LF] = &StateM::G1f;
         table[s_W1][LEX_SEMICOLON] = &StateM::G1g;
         table[s_W1][LEX_DIGIT] = &StateM::G1h;
@@ -309,11 +343,11 @@ public:
         table[s_W1][LEX_L_BRACKET] = &StateM::G1l;
         table[s_W1][LEX_R_BRACKET] = &StateM::G1l;
         table[s_W1][LEX_COLON] = &StateM::G1m;
-        table[s_W1][LEX_COMMA] =&StateM::G1n;
+        table[s_W1][LEX_COMMA] = &StateM::G1n;
         table[s_W1][LEX_L_SQ_BRACKET] = &StateM::G1o;
         table[s_W1][LEX_ERR_SYMB] = &StateM::E2;
-        
-        // parsing constant 
+
+        // parsing constant
         table[s_B1][LEX_DIGIT] = &StateM::B1a;
         table[s_B1][LEX_SPACE] = &StateM::B1c;
         table[s_B1][LEX_SEMICOLON] = &StateM::B1d;
@@ -321,15 +355,16 @@ public:
         table[s_B1][LEX_LF] = &StateM::B1g;
         table[s_B1][LEX_AR_OPERATION] = &StateM::B1h;
         table[s_B1][LEX_RATIO] = &StateM::B1i;
-        table[s_B1][LEX_COMMA] = &StateM::S1b;  
+        table[s_B1][LEX_COMMA] = &StateM::S1b;
         table[s_B1][LEX_L_BRACKET] = &StateM::B1u;
         table[s_B1][LEX_R_BRACKET] = &StateM::B1u;
+        table[s_B1][LEX_COLON] = &StateM::T1e;
 
         table[s_B1][LEX_CHARACTER] = &StateM::E1;
 
-        table[s_B1][LEX_R_SQ_BRACKET] =&StateM::E4;
+        table[s_B1][LEX_R_SQ_BRACKET] = &StateM::E4;
 
-        // parsing variable 
+        // parsing variable
         table[s_C1][LEX_CHARACTER] = &StateM::C1b;
         table[s_C1][LEX_DIGIT] = &StateM::C1c;
         table[s_C1][LEX_SPACE] = &StateM::C1d;
@@ -339,16 +374,15 @@ public:
         table[s_C1][LEX_L_BRACKET] = &StateM::C1k;
         table[s_C1][LEX_R_BRACKET] = &StateM::C1k;
         table[s_C1][LEX_AR_OPERATION] = &StateM::C1l;
-        table[s_C1][LEX_COMMA] = &StateM::S1c;   
+        table[s_C1][LEX_COMMA] = &StateM::S1c;
 
-        table[s_C1][LEX_R_SQ_BRACKET] =&StateM::E4;
-        table[s_C1][LEX_ERR_SYMB] = &StateM::E2;     
+        table[s_C1][LEX_R_SQ_BRACKET] = &StateM::E4;
+        table[s_C1][LEX_ERR_SYMB] = &StateM::E2;
 
-        table[s_F1][LEX_RATIO] = &StateM::F2; // двухсимвольный знак отношения 
+        table[s_F1][LEX_RATIO] = &StateM::F2; // двухсимвольный знак отношения
         table[s_F1][LEX_DIGIT] = &StateM::F2a;
-        table[s_F1][LEX_CHARACTER] = &StateM::F2b; 
+        table[s_F1][LEX_CHARACTER] = &StateM::F2b;
         table[s_F1][LEX_SPACE] = &StateM::F2c;
-
 
         table[s_M1][LEX_CHARACTER] = &StateM::M1;
         table[s_M1][LEX_L_BRACKET] = &StateM::C1k;
@@ -357,7 +391,8 @@ public:
         table[s_M1][LEX_SPACE] = &StateM::C1d;
         table[s_M1][LEX_LF] = &StateM::C1g;
         table[s_M1][LEX_COMMA] = &StateM::S1c;
-        
+        table[s_M1][LEX_AR_OPERATION] = &StateM::C1l;
+
         table[s_H1][LEX_CHARACTER] = &StateM::C1b;
         table[s_H1][LEX_DIGIT] = &StateM::C1b;
         table[s_H1][LEX_SPACE] = &StateM::H1;
@@ -365,6 +400,7 @@ public:
         table[s_H1][LEX_L_BRACKET] = &StateM::R1a;
         table[s_H1][LEX_R_BRACKET] = &StateM::R1a;
         table[s_H1][LEX_LF] = &StateM::Q1;
+        table[s_H1][LEX_COLON] = &StateM::T1f;
 
         table[s_H1][LEX_COMMA] = &StateM::E8;
 
@@ -373,9 +409,9 @@ public:
         table[s_R1][LEX_SPACE] = &StateM::P1;
         table[s_R1][LEX_SEMICOLON] = &StateM::H1a;
 
-        table[s_P1][LEX_SPACE]= &StateM::P1;
+        table[s_P1][LEX_SPACE] = &StateM::P1;
         table[s_P1][LEX_SEMICOLON] = &StateM::H1a;
-        
+
         table[s_P1][LEX_DIGIT] = &StateM::E6;
         table[s_P1][LEX_CHARACTER] = &StateM::E6;
         table[s_P1][LEX_L_BRACKET] = &StateM::E6;
@@ -400,7 +436,7 @@ public:
 
         // end switch
         table[s_H2][LEX_SPACE] = &StateM::H3;
-        table[s_H2][LEX_CHARACTER] =&StateM::C1b;
+        table[s_H2][LEX_CHARACTER] = &StateM::C1b;
 
         table[s_H2][LEX_L_BRACKET] = &StateM::E9;
         table[s_H2][LEX_R_BRACKET] = &StateM::E9;
@@ -411,9 +447,9 @@ public:
         table[s_H2][LEX_L_SQ_BRACKET] = &StateM::E9;
         table[s_H2][LEX_LF] = &StateM::E9a;
         table[s_H2][LEX_R_SQ_BRACKET] = &StateM::E9;
-        table[s_H2][LEX_COMMA] =&StateM::E9;
-        table[s_H2][LEX_DIGIT] =&StateM::E9;
-        table[s_H2][LEX_SEMICOLON] =&StateM::E9;
+        table[s_H2][LEX_COMMA] = &StateM::E9;
+        table[s_H2][LEX_DIGIT] = &StateM::E9;
+        table[s_H2][LEX_SEMICOLON] = &StateM::E9;
 
         table[s_H3][LEX_CHARACTER] = &StateM::H3a;
         table[s_H3][LEX_SPACE] = &StateM::H3;
@@ -427,9 +463,9 @@ public:
         table[s_H3][LEX_L_SQ_BRACKET] = &StateM::E9;
         table[s_H3][LEX_LF] = &StateM::E9a;
         table[s_H3][LEX_R_SQ_BRACKET] = &StateM::E9;
-        table[s_H3][LEX_COMMA] =&StateM::E9;
-        table[s_H3][LEX_DIGIT] =&StateM::E9;
-        table[s_H3][LEX_SEMICOLON] =&StateM::E9;
+        table[s_H3][LEX_COMMA] = &StateM::E9;
+        table[s_H3][LEX_DIGIT] = &StateM::E9;
+        table[s_H3][LEX_SEMICOLON] = &StateM::E9;
 
         table[s_H4][LEX_CHARACTER] = &StateM::H4;
 
@@ -443,10 +479,10 @@ public:
         table[s_H4][LEX_L_SQ_BRACKET] = &StateM::E9;
         table[s_H4][LEX_LF] = &StateM::E9a;
         table[s_H4][LEX_R_SQ_BRACKET] = &StateM::E9;
-        table[s_H4][LEX_COMMA] =&StateM::E9;
-        table[s_H4][LEX_DIGIT] =&StateM::E9;
-        table[s_H4][LEX_SEMICOLON] =&StateM::E9;
-        
+        table[s_H4][LEX_COMMA] = &StateM::E9;
+        table[s_H4][LEX_DIGIT] = &StateM::E9;
+        table[s_H4][LEX_SEMICOLON] = &StateM::E9;
+
         table[s_H5][LEX_LF] = &StateM::H5a;
         table[s_H5][LEX_SPACE] = &StateM::H5;
         table[s_H5][LEX_SEMICOLON] = &StateM::H5b;
@@ -459,14 +495,49 @@ public:
         table[s_H5][LEX_ERR_SYMB] = &StateM::E2;
         table[s_H5][LEX_L_SQ_BRACKET] = &StateM::E9;
         table[s_H5][LEX_R_SQ_BRACKET] = &StateM::E9;
-        table[s_H5][LEX_COMMA] =&StateM::E9;
-        table[s_H5][LEX_DIGIT] =&StateM::E9;
+        table[s_H5][LEX_COMMA] = &StateM::E9;
+        table[s_H5][LEX_DIGIT] = &StateM::E9;
 
-        //comment
+        // PUT[switch] ожидаем left bracket
+        table[s_H7][LEX_SPACE] = &StateM::H7;
+        table[s_H7][LEX_LF] = &StateM::H7a;
+        table[s_H7][LEX_L_BRACKET] = &StateM::H7b;
+
+        table[s_H8][LEX_CHARACTER] = &StateM::C1b;
+        table[s_H8][LEX_DIGIT] = &StateM::C1b;
+        table[s_H8][LEX_SPACE] = &StateM::H8a;
+        table[s_H8][LEX_LF] = &StateM::H8b;
+        table[s_H8][LEX_SEMICOLON] = &StateM::H8;
+
+        // LOAD
+        table[s_H6][LEX_SPACE] = &StateM::H6;
+        table[s_H6][LEX_LF] = &StateM::H6a;
+        table[s_H6][LEX_L_BRACKET] = &StateM::L1;
+
+        table[s_L1][LEX_SPACE] = &StateM::L1;
+        table[s_L1][LEX_LF] = &StateM::L1a;
+        table[s_L1][LEX_CHARACTER] = &StateM::L2a; // запись одной переменной
+
+        table[s_L2][LEX_CHARACTER] = &StateM::L2;
+        table[s_L2][LEX_DIGIT] = &StateM::L2;
+        table[s_L2][LEX_LF] = &StateM::L3a;
+        table[s_L2][LEX_SPACE] = &StateM::L3b;
+        table[s_L2][LEX_COMMA] = &StateM::L4;
+        table[s_L2][LEX_R_BRACKET] = &StateM::L5;
+
+        table[s_L3][LEX_SPACE] = &StateM::L3b;
+        table[s_L3][LEX_LF] = &StateM::L3a;
+        table[s_L3][LEX_COMMA] = &StateM::L4;
+        table[s_L3][LEX_R_BRACKET] = &StateM::L5;
+
+        table[s_L4][LEX_SPACE] = &StateM::L4a;
+        table[s_L4][LEX_LF] = &StateM::L4b;
+        table[s_L4][LEX_CHARACTER] = &StateM::L2;
+
+        // comment
         table[s_G1][LEX_CHARACTER] = &StateM::C1b;
         table[s_G1][LEX_DIGIT] = &StateM::C1b;
         table[s_G1][LEX_SPACE] = &StateM::G1d;
-
 
         table[s_G1a][LEX_AR_OPERATION] = &StateM::G1a;
         table[s_G1a][LEX_RATIO] = &StateM::G1a;
@@ -482,10 +553,9 @@ public:
         table[s_G1a][LEX_SPACE] = &StateM::G1a;
         table[s_G1a][LEX_SEMICOLON] = &StateM::G1b;
         table[s_G1a][LEX_LF] = &StateM::G1c;
-        //table[s_G1a][LEX_LF] = &StateM::O1;
+        // table[s_G1a][LEX_LF] = &StateM::O1;
 
-
-        //метка
+        // метка
         table[s_T1][LEX_DIGIT] = &StateM::T1a;
         table[s_T1a][LEX_DIGIT] = &StateM::T1b;
         table[s_T1a][LEX_SPACE] = &StateM::T2;
@@ -510,11 +580,11 @@ public:
         table[s_T1][LEX_ERR_SYMB] = &StateM::E2;
         table[s_T1][LEX_L_BRACKET] = &StateM::E5;
         table[s_T1][LEX_L_SQ_BRACKET] = &StateM::E5;
-        table[s_T1][LEX_LF] = &StateM::E5a;
         table[s_T1][LEX_R_BRACKET] = &StateM::E5;
         table[s_T1][LEX_R_SQ_BRACKET] = &StateM::E5;
         table[s_T1][LEX_SEMICOLON] = &StateM::E5;
-        table[s_T1][LEX_SPACE] = &StateM::E5;
+        table[s_T1][LEX_SPACE] = &StateM::T2c;
+        table[s_T1][LEX_LF] = &StateM::T2d;
 
         table[s_J1][LEX_DIGIT] = &StateM::J1;
         table[s_J1][LEX_CHARACTER] = &StateM::J1;
@@ -531,12 +601,10 @@ public:
         table[s_J1][LEX_L_SQ_BRACKET] = &StateM::J1;
         table[s_J1][LEX_R_SQ_BRACKET] = &StateM::J1;
 
-        
-        //goto, then, else
+        // goto, then, else
         table[s_K1][LEX_SPACE] = &StateM::K1;
         table[s_K1][LEX_CHARACTER] = &StateM::C1b;
         table[s_K1][LEX_DIGIT] = &StateM::C1b;
-
 
         table[s_K1][LEX_RATIO] = &StateM::E5;
         table[s_K1][LEX_SEMICOLON] = &StateM::E5;
@@ -544,12 +612,11 @@ public:
         table[s_K1][LEX_L_BRACKET] = &StateM::E5;
         table[s_K1][LEX_R_BRACKET] = &StateM::E5;
         table[s_K1][LEX_AR_OPERATION] = &StateM::E5;
-        table[s_K1][LEX_COMMA] = &StateM::E5;  
+        table[s_K1][LEX_COMMA] = &StateM::E5;
         table[s_K1][LEX_COLON] = &StateM::E5;
         table[s_K1][LEX_ERR_SYMB] = &StateM::E2;
         table[s_K1][LEX_L_SQ_BRACKET] = &StateM::E5;
         table[s_K1][LEX_R_SQ_BRACKET] = &StateM::E5;
-
 
         table[s_K2][LEX_SPACE] = &StateM::K2;
         table[s_K2][LEX_DIGIT] = &StateM::K2a;
@@ -567,9 +634,8 @@ public:
         table[s_K2][LEX_R_SQ_BRACKET] = &StateM::E5;
         table[s_K2][LEX_SEMICOLON] = &StateM::E5;
 
-
         table[s_K3][LEX_DIGIT] = &StateM::K3b;
-        table[s_K3][LEX_SPACE] =&StateM::K4a;
+        table[s_K3][LEX_SPACE] = &StateM::K4a;
         table[s_K3][LEX_LF] = &StateM::K4b;
         table[s_K3][LEX_SEMICOLON] = &StateM::K4c;
 
@@ -599,7 +665,7 @@ public:
         table[s_Z1][LEX_LF] = &StateM::E4a;
         table[s_Z1][LEX_R_BRACKET] = &StateM::E4;
         table[s_Z1][LEX_SEMICOLON] = &StateM::E4;
-        
+
         table[s_Z2][LEX_DIGIT] = &StateM::Z2b;
         table[s_Z2][LEX_SPACE] = &StateM::Z2c;
         table[s_Z2][LEX_R_SQ_BRACKET] = &StateM::Z2d; // final
@@ -647,7 +713,6 @@ public:
         table[s_Z4][LEX_LF] = &StateM::E4a;
         table[s_Z4][LEX_R_BRACKET] = &StateM::E4;
         table[s_Z4][LEX_SEMICOLON] = &StateM::E4;
-        
     }
 
     ~StateM()
@@ -666,14 +731,15 @@ void StateM::StartDKA(const char *NameFile)
 
     if (!buff.is_open())
     {
-        cout << "file "<< NameFile << " didn't open" <<   endl;
+        cout << "file " << NameFile << " didn't open" << endl;
         return;
     }
 
     string RegisterStr;
     while (!buff.eof())
     {
-        if (!RegisterStr.empty()) {
+        if (!RegisterStr.empty())
+        {
             RegisterStr.clear();
         }
 
@@ -682,12 +748,13 @@ void StateM::StartDKA(const char *NameFile)
         LineProcessing(RegisterStr);
     }
 
-    if (cur_state == s_G1a) {
+    if (cur_state == s_G1a)
+    {
         vecToken.emplace_back(reg_str_comment, ERR_TOKEN);
-        vec_errors.emplace_back(to_string(reg_str_comment+1) + ": comment isn't closed");
+        vec_errors.emplace_back(to_string(reg_str_comment + 1) + ": comment isn't closed");
         flagAnalyzer = false;
     }
-    
+
     vecToken.emplace_back(0, END_MARKER);
     buff.close();
 }
@@ -700,6 +767,5 @@ void StateM::LineProcessing(const string &RegisterStr)
         cur_state = (this->*table[cur_state][s.SToken])();
     }
 }
-
 
 #endif

@@ -453,6 +453,94 @@ int StateM::H5b()
     return D1();
 }
 
+int StateM::H6() {
+    return s_H6;
+}
+
+int StateM::H6a() {
+    ++reg_num_str;
+    return s_H6;
+}
+
+int StateM::L1() {
+    return s_L1;
+}
+
+int StateM::L1a() {
+    ++reg_num_str;
+    return s_L1;
+}
+
+int StateM::L2a() {
+    reg_name.clear();
+    reg_name += s.value;
+    return s_L2;
+}
+
+int StateM::L2() {
+    reg_name += s.value;
+    return s_L2;
+}
+
+int StateM::L3a() {
+    ++reg_num_str;
+    return s_L3;
+}
+
+int StateM::L3b() {
+    return s_L3;
+}
+
+int StateM::L4() {
+    reg_load_names.emplace_back(std::move(reg_name));
+    return s_L4;
+}
+
+int StateM::L4a() {
+    return s_L4;
+}
+
+int StateM::L4b() {
+    ++reg_num_str;
+    return s_L4;
+}
+
+int StateM::L5() {
+    reg_load_names.emplace_back(std::move(reg_name));
+    vecToken.emplace_back(reg_num_str, LOAD, std::move(reg_load_names));
+    return s_A0;
+}
+
+int StateM::H7() {
+    return s_H7;
+}
+
+int StateM::H7a() {
+    ++reg_num_str;
+    return s_H7;
+}
+
+int StateM::H7b() {
+    vecToken.emplace_back(reg_num_str, reg_token);
+    return s_A0;
+}
+
+int StateM::H8a() {
+    return s_H8;
+}
+
+int StateM::H8b() {
+    ++reg_num_str;
+    return s_H8;
+}
+
+int StateM::H8() {
+    vecToken.emplace_back(reg_num_str, BREAK);
+    vecToken.emplace_back(reg_num_str, SEMICOLON);
+    return s_A0;
+}
+
+
 int StateM::G1d()
 {
     return s_G1a;
@@ -527,7 +615,7 @@ int StateM::K4c() {
 int StateM::M1()
 {
     reg_name.push_back(s.value);
-    if(discovery_register==1 && s.value=='i')
+    if(discovery_register == 1 && s.value=='i')
     {
         ++discovery_register;
     }
@@ -649,7 +737,7 @@ int StateM::M1()
     else if(discovery_register == 25 && s.value == 'd')
     {
         reg_token = LOAD;
-        return s_H1;
+        return s_H6;
     }
     else if(discovery_register == 26 && s.value == 'u')
     {
@@ -658,7 +746,7 @@ int StateM::M1()
     else if(discovery_register == 27 && s.value == 't')
     {
         reg_token = PUT;
-        return s_H1;
+        return s_H7;
     }
     else if(discovery_register == 28 && s.value == 'o')
     {
@@ -692,7 +780,7 @@ int StateM::M1()
     else if(discovery_register == 35 && s.value == 'h')
     {
         reg_token = SWITCH;
-        return s_H1;
+        return s_H7;
     }
     else if(discovery_register == 36 && s.value == 'a')
     {
@@ -722,7 +810,7 @@ int StateM::M1()
     else if(discovery_register == 42 && s.value == 'k')
     {
         reg_token = BREAK;
-        return s_H1;
+        return s_H8;
     }
     else if(discovery_register == 43 && s.value == 'a')
     {
@@ -916,6 +1004,19 @@ int StateM::M1()
     {
         reg_token = HASH_ADD;
         return s_H1;
+    } else if(discovery_register == 1 && s.value == 'e') {
+        discovery_register = 140;
+    } else if (discovery_register == 140 && s.value == 'f') {
+        ++discovery_register;
+    } else if (discovery_register == 141 && s.value == 'a') {
+        ++discovery_register;
+    } else if (discovery_register == 142 && s.value == 'u') {
+        ++discovery_register;
+    } else if (discovery_register == 143 && s.value == 'l') {
+        ++discovery_register;
+    } else if (discovery_register == 144 && s.value == 't') {
+        reg_token = DEFAULT;
+        return s_H1;
     }
     else 
     {
@@ -977,6 +1078,34 @@ int StateM::T2a() {
     T2();
     return A0a();   
 }
+
+int StateM::T2c() {
+    vecToken.emplace_back(reg_num_str, COLON);
+    vecToken.emplace_back(reg_num_str, SEMICOLON);
+    return s_A0;
+}
+
+int StateM::T2d() {
+    vecToken.emplace_back(reg_num_str, COLON);
+    vecToken.emplace_back(reg_num_str, SEMICOLON);
+    ++reg_num_str;
+    return s_A0;
+}
+
+int StateM::T1e() {
+    B1c();
+    vecToken.emplace_back(reg_num_str, COLON);
+    vecToken.emplace_back(reg_num_str, SEMICOLON);
+    return s_A0;
+}
+
+int StateM::T1f() {
+    H1();
+    vecToken.emplace_back(reg_num_str, COLON);
+    vecToken.emplace_back(reg_num_str, SEMICOLON);
+    return s_A0;
+}
+
 
 int StateM::S1a() {
     vecToken.emplace_back(reg_num_str,COMMA);

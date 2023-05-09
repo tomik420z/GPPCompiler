@@ -23,6 +23,7 @@ enum TokenClass
     SWITCH,
     CASE,
     BREAK,
+    DEFAULT,
     RAISE,
     END_SWITCH,
     DUAL_MORE,

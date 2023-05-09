@@ -154,6 +154,12 @@ void PrintVec(const list<data_token> &obj)
         case LOAD:  
             cout.width(15);
             cout << "LOAD";
+            cout.width(10);
+            std::cout << "[ ";
+            for(const auto& name : any_cast<std::vector<std::string>>(val)) {
+                std::cout << name << " ";
+            }
+            std::cout << "]" << std::endl;
             break;
         case PUT:   
             cout.width(15);

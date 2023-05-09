@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
         }
     } catch(exception e) {
         std::cerr <<  e.what() << std::endl;
+    } catch (const char* e) {
+        std::cerr << e << std::endl;
     }
 
 
