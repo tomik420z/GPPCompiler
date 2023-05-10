@@ -77,6 +77,8 @@ enum States
     s_K1,
     s_K2,
     s_K3,
+    s_K4,
+    s_K5,
     s_R1,
     s_Z1,
     s_Z2,
@@ -118,7 +120,7 @@ protected:
     TokenClass reg_token;
     hash_set reg_hash;
 
-    static constexpr int state_number = 39;
+    static constexpr int state_number = 41;
     static constexpr int class_number = 14;
 
 public:
@@ -216,6 +218,13 @@ protected:
     int K4a();
     int K4b();
     int K4c();
+
+    int K4();
+    int K4d();
+    int K5();
+    int K5a();
+    int K5b();
+    int K5c();
 
     int J1();
 
@@ -649,6 +658,15 @@ public:
         table[s_K3][LEX_L_SQ_BRACKET] = &StateM::E5;
         table[s_K3][LEX_R_BRACKET] = &StateM::E5;
         table[s_K3][LEX_R_SQ_BRACKET] = &StateM::E5;
+
+        table[s_K4][LEX_SPACE] = &StateM::K4;
+        table[s_K4][LEX_LF] = &StateM::K4d;
+        table[s_K4][LEX_CHARACTER] = &StateM::K5;
+
+        table[s_K5][LEX_DIGIT] = &StateM::K5a; 
+        table[s_K5][LEX_CHARACTER] = &StateM::K5a;
+        table[s_K5][LEX_SPACE] = &StateM::K5b;
+        table[s_K5][LEX_LF] = &StateM::K5c;
 
         table[s_Z1][LEX_SPACE] = &StateM::Z1a;
         table[s_Z1][LEX_R_SQ_BRACKET] = &StateM::Z1b;

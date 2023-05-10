@@ -1,0 +1,4 @@
+comment L for V in (E >> E): Program next L; 
+432 for o1 in (1 + 234 >> 10 / 2445):
+    ;;
+next 4

@@ -328,7 +328,7 @@ void Syntax::ClassificationFunction()
 
 void Syntax::RuleInitialisation()
 {
-    rules.resize(56);
+    rules.resize(58);
 
     rules[0].first = _Program_;
     rules[0].second = {El[_Operator_]};
@@ -488,7 +488,7 @@ void Syntax::RuleInitialisation()
     rules[43].first = _E_bracket_;
     rules[43].second = {El[_Expression_], El[_right_bracket_]};
 
-    // switch
+    // switch with empty program
     rules[44].first = _Operator_;
     rules[44].second = {El[_nont_switch_], El[_end_switch_], El[_semicolon_]};
 
@@ -525,21 +525,12 @@ void Syntax::RuleInitialisation()
     rules[55].first = _list_cases_2_;
     rules[55].second = {El[_lc1_], El[_nont_colon_]};
 
+    //L for v in (1 >> 3): P next L
+    rules[56].first = _Operator_;
+    rules[56].second = {El[_Nont_for_], El[_next_]};
 
-    //rules[53].first = _list_cases_2_;
-    //rules[53].second = {El[_lc1_], El[_colon_], El[_Program_]};
-
-    // rules[54].first = _Program2_;
-    // rules[54].second = {El[_Program_]};
-    // constant expression for switch
-    /*
-    // _For
-    rules[50].first = _Operator_;
-    rules[50].second = {El[_Nont_for_], El[_Next]};
-
-    rules[51].first = _Nont_for_;
-    rules[51].second = {El[_For], El[_Each], El[_Var], El[_In], El[_List_let1_], El[_Do], El[_Program_]};
-    */
+    rules[57].first = _Nont_for_;
+    rules[57].second = {El[_constant_], El[_for_], El[_in_], El[_Expression_], El[_dual_more_], El[_Expression_], El[_right_bracket_], El[_colon_],  El[_Program_]};
 }
 
 void Syntax::transformation()

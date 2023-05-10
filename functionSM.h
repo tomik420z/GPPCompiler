@@ -176,7 +176,7 @@ int StateM::C1c() {
 
 int StateM::C1d() {
     set_var.insert(reg_name);
-    vecToken.emplace_back(reg_num_str,VARIABLE, std::move(reg_name));
+    vecToken.emplace_back(reg_num_str, VARIABLE, std::move(reg_name));
     return s_A0;
 }
 
@@ -675,12 +675,12 @@ int StateM::M1()
     else if(discovery_register == 13 && s.value == 'r')
     {
         reg_token = FOR;
-        return s_H1;
+        return s_K4;
     }
     else if(discovery_register == 14 && s.value == 'n')
     {
         reg_token = IN;
-        return s_H1;
+        return s_H7;
     }
     else if(discovery_register == 15 && s.value == 'e')
     {
@@ -1276,4 +1276,36 @@ int StateM::E10()
     flagAnalyzer = false;
     return s_J1;
 }
+
+int StateM::K4() {
+    return s_K4;
+}
+
+int StateM::K4d() {
+    ++reg_num_str;
+    return s_K4;
+}
+
+int StateM::K5() {
+    reg_name.clear();
+    reg_name = s.value;
+    return s_K5;
+}
+
+int StateM::K5a() {
+    reg_name += s.value;
+    return s_K5;
+}
+
+int StateM::K5b() {
+    vecToken.emplace_back(reg_num_str, FOR, std::move(reg_name));
+    return s_A0;
+}
+
+int StateM::K5c() {
+    vecToken.emplace_back(reg_num_str, FOR, std::move(reg_name));
+    ++reg_num_str;
+    return s_A0;
+}
+
 #endif

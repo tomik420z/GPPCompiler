@@ -9,8 +9,10 @@ int main() {
     switch (x)
     {
     case 12:
-        y = 10;
-        g();
+    case 13:
+    case 15:
+        
+        break;
     default:
     }
 }

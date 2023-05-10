@@ -116,6 +116,8 @@ void PrintVec(const list<data_token> &obj)
         case FOR:
             cout.width(15);
             cout << "FOR";
+            cout.width(10);
+            cout << any_cast<std::string>(val);
             break;
         case UINT:
             cout.width(15);
