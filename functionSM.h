@@ -680,6 +680,8 @@ int StateM::M1()
     else if(discovery_register == 14 && s.value == 'n')
     {
         reg_token = IN;
+        __count_closed = 1;
+        __flag_start = true;
         return s_H7;
     }
     else if(discovery_register == 15 && s.value == 'e')
@@ -1034,11 +1036,24 @@ int StateM::R1()
 {
     if(s.value == '(')
     {
+        if (reg_token == IN) {
+            ++__count_closed;
+        } else {
+            __count_closed = 1;
+        }
         vecToken.emplace_back(reg_num_str,LEFT_BRACKET);
     }
     else if(s.value == ')')
     {
+        if (reg_token == IN) {
+            --__count_closed;
+        } else {
+            __count_closed = 1;
+        }    
         vecToken.emplace_back(reg_num_str,RIGHT_BRACKET);
+        if (__count_closed == 0) {
+            vecToken.emplace_back(reg_num_str, COLON);
+        }
     }
     return s_A0;
 }

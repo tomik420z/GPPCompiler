@@ -16,3 +16,16 @@ load(v1,
 load(x);
 put(x);
 put(c+2);
+
+12 for v in ((x + 10) / 10 >> p) 
+       switch (x % 3) 
+       case 1:
+              put(x % 2); break;
+       case 2: 
+              put(x % 3); break;
+       case 3:       
+              put(x % 10); break;
+       end switch;
+next 3
+
+:3 put(10 * 10 / x, 10, 10, 10, 10);

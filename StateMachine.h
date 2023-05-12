@@ -120,6 +120,9 @@ protected:
     TokenClass reg_token;
     hash_set reg_hash;
 
+    int __count_closed;
+    bool __flag_start;
+
     static constexpr int state_number = 41;
     static constexpr int class_number = 14;
 
@@ -315,7 +318,7 @@ public:
     StateM(const StateM &) = delete;
     StateM &operator=(const StateM &) = delete;
 
-    StateM()
+    StateM() : __count_closed(1)
     {
         cur_state = s_A0;
         reg_num_str = 0;

@@ -108,7 +108,7 @@ class Syntax
 {
 protected:
     list<data_token>::iterator VecIter;
-    bool CheckRule(list<TypeEl> &temp, vector<pair<TypeEl, bool>> &Vec);
+    bool check_rule(list<TypeEl> &temp, vector<pair<TypeEl, bool>> &Vec);
     typedef void (Syntax::*function_pointer)();
     function_pointer **table1; 
     static constexpr int state_number = 77;
@@ -218,17 +218,14 @@ public:
             auto it1 = store.end();
             --it1;
             --it1;
-            // ����� �������, �� �������� ��� ������ ������
             (this->*table1[*it1][*it])();
             temp.push_front(*it);
             store.pop_back();
         }
 
-        // ���� �������
         for (size_t i = 0; i < rules.size(); ++i)
         {
-            // ���� ������� ���������
-            if (CheckRule(temp, rules[i].second))
+            if (check_rule(temp, rules[i].second))
             {
                 store.push_back(rules[i].first);
                 return;
@@ -698,7 +695,7 @@ void Syntax::Error() { flagSyntax = false; }
 
 void Syntax::accept() { flagSyntax = true; }
 
-bool Syntax::CheckRule(list<TypeEl> &temp, vector<pair<TypeEl, bool>> &Vec)
+bool Syntax::check_rule(list<TypeEl> &temp, vector<pair<TypeEl, bool>> &Vec)
 {
     if (temp.size() != Vec.size())
         return 0;

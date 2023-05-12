@@ -1,4 +1,13 @@
-comment L for V in (E >> E): Program next L; 
-432 for o1 in (1 + 234 >> 10 / 2445):
-    ;;
-next 4
+dim num as uint;
+if num < 2 
+    then 4
+dim z as uint;
+let z = num - 1;
+
+1 for i in ((((2 / x) / z) - 10) >> z % 100)
+    if num % i != 0 
+        then 1 
+        else 4
+next 3
+:3 put(1);
+:4 put(0);
