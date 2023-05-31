@@ -44,50 +44,6 @@ enum TypeRatio
     INEQUAL
 };
 
-enum States
-{
-    s_A0,
-    s_A1,
-    s_B1,
-    s_C1,
-    s_D1,
-    s_E1,
-    s_F1,
-    s_F2,
-    s_J1,
-    s_M1,
-    s_M2,
-    s_H1,
-    s_H2,
-    s_H3,
-    s_H4,
-    s_H5,
-    s_H6,
-    s_H7,
-    s_H8,
-    s_L1,
-    s_L2,
-    s_L3,
-    s_L4,
-    s_W1,
-    s_G1,
-    s_G1a,
-    s_T1,
-    s_T1a,
-    s_K1,
-    s_K2,
-    s_K3,
-    s_K4,
-    s_K5,
-    s_R1,
-    s_Z1,
-    s_Z2,
-    s_Z3,
-    s_Z4,
-    s_P1,
-    s_Error,
-    s_Stop
-};
 
 struct PairToken
 {
@@ -104,6 +60,51 @@ vector<string> vec_errors;
 class StateM
 {
 protected:
+    
+    enum States {
+        s_A0,
+        s_A1,
+        s_B1,
+        s_C1,
+        s_D1,
+        s_E1,
+        s_F1,
+        s_F2,
+        s_J1,
+        s_M1,
+        s_M2,
+        s_H1,
+        s_H2,
+        s_H3,
+        s_H4,
+        s_H5,
+        s_H6,
+        s_H7,
+        s_H8,
+        s_L1,
+        s_L2,
+        s_L3,
+        s_L4,
+        s_W1,
+        s_G1,
+        s_G1a,
+        s_T1,
+        s_T1a,
+        s_K1,
+        s_K2,
+        s_K3,
+        s_K4,
+        s_K5,
+        s_R1,
+        s_Z1,
+        s_Z2,
+        s_Z3,
+        s_Z4,
+        s_P1,
+        s_Error,
+        s_Stop
+    };
+    
     PairToken s;
     int discovery_register;
     int reg_const;

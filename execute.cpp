@@ -23,6 +23,11 @@ int main(int argc, char *argv[])
             std::cout << "++++++\n";
             syntax2.StartSyntax(); 
             std::cout << "syntax: " << syntax2.flagSyntax << std::endl;
+            std::ofstream buff("test.txt");
+            auto li_atom = syntax2.get_atoms();
+            for(auto it = li_atom.begin(); it != li_atom.end(); ++it) {
+                buff << *it << std::endl;    
+            }
         }
         else {
             PrintErrors();
@@ -35,6 +40,7 @@ int main(int argc, char *argv[])
     } catch (const char* e) {
         std::cerr << e << std::endl;
     }
+
 
 
     

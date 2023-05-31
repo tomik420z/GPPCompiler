@@ -65,13 +65,16 @@ struct data_token
         
     data_token() : num_str(0), CToken(), ptr() {}
 
-    data_token(int num, TokenClass CToken) : num_str(num), CToken(CToken), ptr() {}
+    data_token(int num, int CToken) : num_str(num), CToken(CToken), ptr() {}
+
+    data_token(const data_token & rhs) : num_str(rhs.num_str), CToken(rhs.CToken), ptr(rhs.ptr) {}
+
+    data_token(data_token && rhs) : num_str(rhs.num_str), CToken(rhs.CToken), ptr(std::move(rhs.ptr)) {}
 
     template<typename Type>
-    data_token(int num, TokenClass CToken, const Type & ptr) :num_str(num), CToken(CToken), ptr(ptr) {} 
+    data_token(int num, int CToken, Type && ptr) : num_str(num), CToken(CToken), ptr(std::forward<Type>(ptr)) {}
 
-    template<typename Type>
-    data_token(int num, TokenClass CToken, Type && move_ptr) : num_str(num), CToken(CToken), ptr(std::forward<Type>(move_ptr)) {}
+    ~data_token() {}
 };
 
 

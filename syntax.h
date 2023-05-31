@@ -7,7 +7,9 @@
 #include <vector>
 #include <list>
 #include "analyzer.h"
+#include "atoms.h"
 using namespace std;
+
 
 
 enum TypeEl
@@ -104,18 +106,65 @@ struct classific
     bool IsTerminal;
 };
 
+struct atom_sum
+{
+    int x, y;
+};
+
+struct atom_sub
+{
+    int x, y;
+};
+
+struct atom_div
+{
+    int x, y;
+};
+
+struct atom_mult {
+    int x, y;
+};
+
+struct atom_mod
+{
+    int x, y;
+};  
+
+
+enum atoms_type 
+{
+    ATOM_LOAD,
+    ATOM_EXPR,
+    ATOM_OP,
+};
+
+class atom_lang {
+protected:
+    int type;
+    std::any val;
+public:
+    template<typename...Args>
+    atom_lang(int type, Args&&... args) : type(type), val(std::forward<Args>(args)...) {}
+    ~atom_lang() {}
+};
+
 class Syntax
 {
 protected:
     list<data_token>::iterator VecIter;
-    bool check_rule(list<TypeEl> &temp, vector<pair<TypeEl, bool>> &Vec);
+    bool CheckRule(list<data_token> &temp, vector<pair<TypeEl, bool>> &Vec);
     typedef void (Syntax::*function_pointer)();
-    function_pointer **table1; 
+    //function_pointer **table1; 
     static constexpr int state_number = 77;
     static constexpr int  class_number = 77;
+    std::array<std::array<function_pointer, state_number>, class_number> table1;
+    // type, value
+    vector<std::string> li_atom;
 public:
+    std::vector<std::string> vec_var;
+    std::vector<std::string> vec_operation;
     bool flagSyntax;
-    list<TypeEl> store; // �������
+    list<data_token> store; // �������
     TypeStore reg_table;
     void TestTable();
     void MemoryTable();
@@ -146,6 +195,8 @@ public:
     pair<TypeEl, bool> CallFirst(pair<TypeEl, vector<pair<TypeEl, bool>>> &obj_rule); // ������� ������ ��-� ������
     pair<TypeEl, bool> CallLast(pair<TypeEl, vector<pair<TypeEl, bool>>> &obj_rule);  // ������� ��������� ��-�
 
+    void create_atom(int);
+
     void Ls();
     void Eq();
     void Mr();
@@ -158,9 +209,10 @@ public:
     vector<pair<TypeEl, bool>> El;                          // �������� ����������
     vector<pair<TypeEl, vector<pair<TypeEl, bool>>>> rules; //������ ������
     set<pair<TypeEl, bool>> RegRules;
-
+    int num = 0; 
     Syntax()
     {
+        
         transformation();         // ��������������� ������� ������������ �����
         ClassificationFunction(); // ������������� ������� ��� ��������� � �����������, ����������� - 0, ��������� - 1
         RuleInitialisation();     // ������������� ������
@@ -174,10 +226,17 @@ public:
         Filling_MR();             // ���������� ������� MR
         Filling_Bottom();
     }
+    
+    
+    std::string gen_num() {
+        std::string str = "c";
+        str += to_string(num++);
+        return str;
+    }
 
     void Init()
     {
-        store.emplace_front(_Bottom_);
+        store.emplace_back(100, _Bottom_, std::any{});
     }
 
     void StartSyntax()
@@ -186,12 +245,12 @@ public:
         VecIter = vecToken.begin(); 
         while (true)
         {
-            if (store.size() <= 2 && store.back() == _Program_ && VecIter->CToken == _Bottom_)
+            if (store.size() <= 2 && store.back().CToken == _Program_ && VecIter->CToken == _Bottom_)
                 return accept();
 
             auto it = store.end();
             --it;
-            (this->*table1[*it][VecIter->CToken])();
+            (this->*table1[it->CToken][VecIter->CToken])();
             if (reg_table == _EQ) // ������� �� ������ �������� ��������
                 Transfer();
             else if (reg_table == _LS)
@@ -203,14 +262,164 @@ public:
 
     void Transfer()
     {
-        store.emplace_back(static_cast<TypeEl>(VecIter->CToken));
+        store.push_back(std::move(*VecIter));
         ++VecIter;
     }
 
+    void create_token(int index, list<data_token>& li_conv) {
+        using type_expr = std::pair<std::vector<std::string>,std::vector<std::string>>;
+        std::cout << "index = "<< index << std::endl;
+        /*
+        if (index == 35) {
+            std::cout << "load : ";
+            auto it = li_conv.begin();
+            //li_atom.emplace_back(ATOM_LOAD, atom_load(std::move(std::any_cast<std::vector<std::string>>(it->ptr))));
+            store.emplace_back(100, rules[index].first, std::any{});
+        } else if (index == 18) { // Factor -> constant
+            type_expr vec_exp;
+            vec_exp.first.emplace_back(to_string(
+                std::any_cast<int>(li_conv.begin()->ptr)
+                )); 
+            store.emplace_back(100, rules[index].first, std::move(vec_exp));    
+        } else if(index == 19) { // Factor -> variable 
+            type_expr vec_exp;
+            vec_exp.first.emplace_back(std::any_cast<std::string>(li_conv.begin()->ptr));
+            store.emplace_back(100, rules[index].first, std::move(vec_exp));
+        } else if(index == 16 || index == 14 || index == 12) { // T_list -> [(*, /, %) Factor]
+            auto [t_list_var, t_list_op] = std::any_cast<type_expr>((++li_conv.begin())->ptr);
+            switch(index) {
+            case 12:
+                t_list_op.emplace_back("*");
+                break;
+            case 14:
+                t_list_op.emplace_back("/");
+                break;
+            case 16:
+                t_list_op.emplace_back("%");
+                break;
+            } 
+            store.emplace_back(100, rules[index].first, 
+                            std::pair{std::move(t_list_var), std::move(t_list_op)} 
+                            );
+        } else if (index == 15 || index == 13 || index == 11) { // T_list -> [%|*|/ T_list]
+            auto [t_list_var, t_list_op] = std::any_cast<type_expr>((++++li_conv.begin())->ptr);
+            auto [factor_var, factor_op] = std::any_cast<type_expr>((++li_conv.begin())->ptr);
+    
+            switch(index) {
+            case 15:
+                t_list_op.emplace_back("%");
+                break;
+            case 13:
+                t_list_op.emplace_back("/");
+                break;
+            case 11:
+                t_list_op.emplace_back("*");
+                break;    
+            }
+            for(auto& atom_var: factor_var) {
+                t_list_var.emplace_back(std::move(atom_var));
+            }
+            
+            for(auto& atom_op: factor_op) {
+                t_list_op.emplace_back(std::move(atom_op));
+            }
+            store.emplace_back(100, rules[index].first, 
+                            std::pair{std::move(t_list_var), std::move(t_list_op)} 
+                            );
+        } else if(index == 17) {
+            store.emplace_back(100, rules[index].first, std::any_cast<type_expr>((++li_conv.begin())->ptr));
+        } else if (index == 9) { // T -> factor
+            auto[lst_var, lst_op] = std::any_cast<type_expr>(li_conv.begin()->ptr);
+            auto it_var = lst_var.rbegin();
+            auto it_op = lst_op.rbegin();
+            std::string str = "push ";
+            str+= *it_var;
+            li_atom.emplace_back(std::string("push ") + *it_var);
+            for(; it_op != lst_op.rend(); ++it_op, ++it_var) {
+                li_atom.emplace_back(std::string("push ") + *it_var);
+                li_atom.emplace_back(*it_op);
+            }
+            store.emplace_back(100, rules[index].first, std::any{});
+        } else if(index == 3) {
+            store.emplace_back(100, rules[index].first, std::any{});
+            /*
+            store.emplace_back(100, rules[index].first, std::any{});*/
+        /*} else if (index == 10) {
+            auto [t_list_var, t_list_op] = std::any_cast<type_expr>((++li_conv.begin())->ptr);
+            auto [factor_var, factor_op] = std::any_cast<type_expr>((li_conv.begin())->ptr);
+            for(auto& atom_var: factor_var) {
+                t_list_var.emplace_back(std::move(atom_var));
+            }
+            
+            for(auto& atom_op: factor_op) {
+                t_list_op.emplace_back(std::move(atom_op));
+            }
+
+            auto it_var = t_list_var.rbegin();
+            auto it_op = t_list_op.rbegin();
+
+            li_atom.emplace_back(std::string("push ") + *it_var);
+            for(; it_op != t_list_op.rend(); ++it_op, ++it_var) {
+                li_atom.emplace_back(std::string("push ") + *it_var);
+                li_atom.emplace_back(*it_op);
+            }
+            std::string var = gen_num();
+            li_atom.emplace_back(std::string("pop ") + var);
+            li_atom.emplace_back(std::string("push ") + var);
+            
+            store.emplace_back(100, rules[index].first, std::any{});
+        } else {
+            if(index == 27) {
+                auto[lst_var, lst_op] = std::any_cast<type_expr>(li_conv.begin()->ptr);
+                auto it_var = lst_var.rbegin();
+                auto it_op = lst_op.rbegin();
+                std::string str = "push ";
+                str+= *it_var;
+                li_atom.emplace_back(std::string("push ") + *it_var);
+                for(; it_op != lst_op.rend(); ++it_op, ++it_var) {
+                    li_atom.emplace_back(std::string("push ") + *it_var);
+                    li_atom.emplace_back(*it_op);
+                }
+                for(auto & str : li_atom) {
+                    std::cout << str << std::endl;
+                }
+            }
+            store.emplace_back(100, rules[index].first, std::any{});
+            
+        }*/
+
+        
+
+
+
+        if (index == 18) {
+            auto it = li_conv.begin();
+            li_atom.emplace_back(std::to_string(std::any_cast<int>(it->ptr)));
+        } else if (index == 19) {
+            auto it = li_conv.begin();
+            li_atom.emplace_back(std::any_cast<std::string>(it->ptr));
+        } else if(index == 5 || index == 6) {
+            li_atom.emplace_back("+");
+        } else if (index == 7 || index == 8) {
+            li_atom.emplace_back("-");
+        } else if (index == 11 || index == 12) {
+            li_atom.emplace_back("*");
+        } else if (index == 13 || index == 14) {
+            li_atom.emplace_back("/");
+        } else if (index == 15 || index == 16) {
+            li_atom.emplace_back("%");
+        }
+    }
+
+    decltype(auto) get_atoms() noexcept {
+        return li_atom;
+    } 
+
+
     void Convolution()
     {
-
-        list<TypeEl> temp; // ��������, ������� ����� �������
+        
+        list<data_token> temp; 
         while (reg_table != _LS)
         {
             auto it = store.end();
@@ -218,21 +427,23 @@ public:
             auto it1 = store.end();
             --it1;
             --it1;
-            (this->*table1[*it1][*it])();
-            temp.push_front(*it);
+            (this->*table1[it1->CToken][it->CToken])();
+            temp.push_front(std::move(*it));
             store.pop_back();
         }
 
+
         for (size_t i = 0; i < rules.size(); ++i)
         {
-            if (check_rule(temp, rules[i].second))
+            if (CheckRule(temp, rules[i].second))
             {
-                store.push_back(rules[i].first);
+                create_token(i, temp);
+                store.emplace_back(100, rules[i].first, std::any{});
                 return;
             }
         }
 
-        if (store.size() <= 2 && store.back() == _Program_ && VecIter->CToken == _Bottom_)
+        if (store.size() <= 2 && store.back().CToken == _Program_ && VecIter->CToken == _Bottom_)
             return accept();
 
         throw "�� ������� ������� ��� ������";
@@ -398,7 +609,7 @@ void Syntax::RuleInitialisation()
     rules[22].first = _Declaration_;
     rules[22].second = {El[_dim_], El[_variable_]};
 
-    // _Let
+    // Let
     rules[23].first = _Operator_;
     rules[23].second = {El[_Nont_let_], El[_semicolon_]};
 
@@ -614,7 +825,7 @@ void Syntax::transformation()
                 el->CToken = _bin_sub_;
                 break;
             case BIN_MULT:
-                el->CToken = _bin_mod_;
+                el->CToken = _bin_mult_;
                 break;
             case BIN_DIV:
                 el->CToken = _bin_div_;
@@ -622,13 +833,13 @@ void Syntax::transformation()
             case BIN_MOD:
                 el->CToken = _bin_mod_;
                 break;
-            case UNION:
+            case TokenClass::UNION:
                 el->CToken = _type_;
                 break;
             case HASH_INTERSEC:
                 el->CToken = _hash_intersec_;
                 break;
-            case DIFF:
+            case TokenClass::DIFF:
                 el->CToken = _diff_;
                 break;
             case SIMDIFF:
@@ -652,16 +863,13 @@ void Syntax::transformation()
             case COMMA:
                 el->CToken = _comma_;
                 break;
-            // case END_MARKER:
-            //     el->CToken = _end_marker_;
-            //     break;
             case SEMICOLON:
                 el->CToken = _semicolon_;
                 break;
             case ASSIGN:
                 el->CToken = _assign_;
                 break;
-            case RATIO:
+            case TokenClass::RATIO:
                 el->CToken = _ratio_;
                 break;
             case COLON:
@@ -670,7 +878,7 @@ void Syntax::transformation()
             case LABLE:
                 el->CToken = _lable_;
                 break;
-            case COMMENT:
+            case TokenClass::COMMENT:
                 el->CToken = _comment_;
                 break;
             case TYPE_LI:
@@ -695,14 +903,14 @@ void Syntax::Error() { flagSyntax = false; }
 
 void Syntax::accept() { flagSyntax = true; }
 
-bool Syntax::check_rule(list<TypeEl> &temp, vector<pair<TypeEl, bool>> &Vec)
+bool Syntax::CheckRule(list<data_token> &temp, vector<pair<TypeEl, bool>> &Vec)
 {
     if (temp.size() != Vec.size())
         return 0;
     int count = 0;
     for (auto i = temp.begin(); i != temp.end(); ++i)
     {
-        if (Vec[count].first != *i)
+        if (Vec[count].first != i->CToken)
             return 0;
         ++count;
     }
@@ -850,9 +1058,9 @@ bool Syntax::CheckTableMr(TypeEl ind1, TypeEl ind2)
 
 void Syntax::MemoryTable()
 {
-    table1 = new function_pointer *[state_number];
+    /*table1 = new function_pointer *[state_number];
     for (size_t i = 0; i < state_number; ++i)
-        table1[i] = new function_pointer[class_number];
+        table1[i] = new function_pointer[class_number];*/
 }
 
 void Syntax::PrintTableClass()
