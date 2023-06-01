@@ -18,3 +18,7 @@ push v2
 write
 push 10
 write
+x
+2
+>
+ji 2

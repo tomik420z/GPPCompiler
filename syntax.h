@@ -417,6 +417,42 @@ public:
                 li_atom.emplace_back("write");
             }
             store.emplace_back(100, rules[index].first, std::any{});
+        } else if (index == 20) {
+            li_atom.emplace_back(any_cast<string>(li_conv[0].ptr));
+            li_atom.emplace_back(any_cast<string>(li_conv[2].ptr));
+            auto ty = any_cast<TypeRatio>(li_conv[1].ptr);
+            std::string str_ty;
+            switch (ty)
+            {
+            case TypeRatio::LESS:
+                str_ty = "<";
+                break;
+            case TypeRatio::MORE:
+                str_ty = ">";
+                break;
+            case TypeRatio::LESS_EQUAL:
+                str_ty = "<=";
+                break;
+            case TypeRatio::MORE_EQUAL:
+                str_ty = ">=";
+                break;
+            case TypeRatio::EQUAL:
+                str_ty = "==";
+                break;
+            case TypeRatio::INEQUAL:
+                str_ty = "!=";
+                break;
+            }
+            li_atom.emplace_back(str_ty);
+            store.emplace_back(100, rules[index].first, std::any{}); 
+        } else if(index == 31) {
+            auto lab = to_string(any_cast<int>(li_conv[2].ptr));
+            li_atom.emplace_back(std::string("ji ") + lab);
+            store.emplace_back(100, rules[index].first, std::any{});
+        } else if(index == 29) {
+            auto lab = to_string(any_cast<int>(li_conv[1].ptr));
+            li_atom.emplace_back(std::string("jmp ") + lab);
+            store.emplace_back(100, rules[index].first, std::any{});  
         } else {
             store.emplace_back(100, rules[index].first, std::any{});
         }
