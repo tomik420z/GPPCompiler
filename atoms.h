@@ -13,8 +13,8 @@ class atom_expression {
 protected:
     std::vector<std::string> vec_exp;
 public:
-    atom_expression() {
-
+    atom_expression(std::vector<string>& vec_exp) {
+        
     }
 };
 

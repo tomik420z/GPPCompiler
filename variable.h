@@ -2,6 +2,17 @@
 #include <variant>
 #include <string>
 #include "hash_set.h"
+
+class gen_name {
+    static int unique_number;
+public:
+    static std::string gen() {
+        return std::string("v") + std::to_string(unique_number++);
+    }
+};
+
+int gen_name::unique_number = 0;
+
 class variable
 {
 protected:

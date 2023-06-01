@@ -8,6 +8,7 @@
 #include <list>
 #include "analyzer.h"
 #include "atoms.h"
+#include "variable.h"
 using namespace std;
 
 
@@ -90,6 +91,8 @@ enum TypeEl
     _lc1_,
     _nont_default_,
     _nont_colon_,
+    _Op_lvl1,
+    _Op_lvl2,
     _Bottom_
 };
 
@@ -155,8 +158,8 @@ protected:
     bool CheckRule(list<data_token> &temp, vector<pair<TypeEl, bool>> &Vec);
     typedef void (Syntax::*function_pointer)();
     //function_pointer **table1; 
-    static constexpr int state_number = 77;
-    static constexpr int  class_number = 77;
+    static constexpr int state_number = 79;
+    static constexpr int  class_number = 79;
     std::array<std::array<function_pointer, state_number>, class_number> table1;
     // type, value
     vector<std::string> li_atom;
@@ -266,155 +269,162 @@ public:
         ++VecIter;
     }
 
-    void create_token(int index, list<data_token>& li_conv) {
+
+
+    void create_token(int index, vector<data_token>& li_conv) {
         using type_expr = std::pair<std::vector<std::string>,std::vector<std::string>>;
         std::cout << "index = "<< index << std::endl;
-        /*
-        if (index == 35) {
-            std::cout << "load : ";
-            auto it = li_conv.begin();
-            //li_atom.emplace_back(ATOM_LOAD, atom_load(std::move(std::any_cast<std::vector<std::string>>(it->ptr))));
-            store.emplace_back(100, rules[index].first, std::any{});
-        } else if (index == 18) { // Factor -> constant
-            type_expr vec_exp;
-            vec_exp.first.emplace_back(to_string(
-                std::any_cast<int>(li_conv.begin()->ptr)
-                )); 
-            store.emplace_back(100, rules[index].first, std::move(vec_exp));    
-        } else if(index == 19) { // Factor -> variable 
-            type_expr vec_exp;
-            vec_exp.first.emplace_back(std::any_cast<std::string>(li_conv.begin()->ptr));
-            store.emplace_back(100, rules[index].first, std::move(vec_exp));
-        } else if(index == 16 || index == 14 || index == 12) { // T_list -> [(*, /, %) Factor]
-            auto [t_list_var, t_list_op] = std::any_cast<type_expr>((++li_conv.begin())->ptr);
-            switch(index) {
-            case 12:
-                t_list_op.emplace_back("*");
-                break;
-            case 14:
-                t_list_op.emplace_back("/");
-                break;
-            case 16:
-                t_list_op.emplace_back("%");
-                break;
-            } 
-            store.emplace_back(100, rules[index].first, 
-                            std::pair{std::move(t_list_var), std::move(t_list_op)} 
-                            );
-        } else if (index == 15 || index == 13 || index == 11) { // T_list -> [%|*|/ T_list]
-            auto [t_list_var, t_list_op] = std::any_cast<type_expr>((++++li_conv.begin())->ptr);
-            auto [factor_var, factor_op] = std::any_cast<type_expr>((++li_conv.begin())->ptr);
-    
-            switch(index) {
-            case 15:
-                t_list_op.emplace_back("%");
-                break;
-            case 13:
-                t_list_op.emplace_back("/");
-                break;
-            case 11:
-                t_list_op.emplace_back("*");
-                break;    
-            }
-            for(auto& atom_var: factor_var) {
-                t_list_var.emplace_back(std::move(atom_var));
-            }
-            
-            for(auto& atom_op: factor_op) {
-                t_list_op.emplace_back(std::move(atom_op));
-            }
-            store.emplace_back(100, rules[index].first, 
-                            std::pair{std::move(t_list_var), std::move(t_list_op)} 
-                            );
-        } else if(index == 17) {
-            store.emplace_back(100, rules[index].first, std::any_cast<type_expr>((++li_conv.begin())->ptr));
-        } else if (index == 9) { // T -> factor
-            auto[lst_var, lst_op] = std::any_cast<type_expr>(li_conv.begin()->ptr);
-            auto it_var = lst_var.rbegin();
-            auto it_op = lst_op.rbegin();
-            std::string str = "push ";
-            str+= *it_var;
-            li_atom.emplace_back(std::string("push ") + *it_var);
-            for(; it_op != lst_op.rend(); ++it_op, ++it_var) {
-                li_atom.emplace_back(std::string("push ") + *it_var);
-                li_atom.emplace_back(*it_op);
-            }
-            store.emplace_back(100, rules[index].first, std::any{});
-        } else if(index == 3) {
-            store.emplace_back(100, rules[index].first, std::any{});
-            /*
-            store.emplace_back(100, rules[index].first, std::any{});*/
-        /*} else if (index == 10) {
-            auto [t_list_var, t_list_op] = std::any_cast<type_expr>((++li_conv.begin())->ptr);
-            auto [factor_var, factor_op] = std::any_cast<type_expr>((li_conv.begin())->ptr);
-            for(auto& atom_var: factor_var) {
-                t_list_var.emplace_back(std::move(atom_var));
-            }
-            
-            for(auto& atom_op: factor_op) {
-                t_list_op.emplace_back(std::move(atom_op));
-            }
-
-            auto it_var = t_list_var.rbegin();
-            auto it_op = t_list_op.rbegin();
-
-            li_atom.emplace_back(std::string("push ") + *it_var);
-            for(; it_op != t_list_op.rend(); ++it_op, ++it_var) {
-                li_atom.emplace_back(std::string("push ") + *it_var);
-                li_atom.emplace_back(*it_op);
-            }
-            std::string var = gen_num();
-            li_atom.emplace_back(std::string("pop ") + var);
-            li_atom.emplace_back(std::string("push ") + var);
-            
-            store.emplace_back(100, rules[index].first, std::any{});
-        } else {
-            if(index == 27) {
-                auto[lst_var, lst_op] = std::any_cast<type_expr>(li_conv.begin()->ptr);
-                auto it_var = lst_var.rbegin();
-                auto it_op = lst_op.rbegin();
-                std::string str = "push ";
-                str+= *it_var;
-                li_atom.emplace_back(std::string("push ") + *it_var);
-                for(; it_op != lst_op.rend(); ++it_op, ++it_var) {
-                    li_atom.emplace_back(std::string("push ") + *it_var);
-                    li_atom.emplace_back(*it_op);
-                }
-                for(auto & str : li_atom) {
-                    std::cout << str << std::endl;
-                }
-            }
-            store.emplace_back(100, rules[index].first, std::any{});
-            
-        }*/
 
         
-
-
-
         if (index == 18) {
-            auto it = li_conv.begin();
-            li_atom.emplace_back(std::to_string(std::any_cast<int>(it->ptr)));
+            auto val_const = any_cast<int>(li_conv[0].ptr);
+            store.emplace_back(100, rules[index].first, to_string(val_const));
         } else if (index == 19) {
-            auto it = li_conv.begin();
-            li_atom.emplace_back(std::any_cast<std::string>(it->ptr));
-        } else if(index == 5 || index == 6) {
-            li_atom.emplace_back("+");
-        } else if (index == 7 || index == 8) {
-            li_atom.emplace_back("-");
-        } else if (index == 11 || index == 12) {
-            li_atom.emplace_back("*");
-        } else if (index == 13 || index == 14) {
-            li_atom.emplace_back("/");
-        } else if (index == 15 || index == 16) {
-            li_atom.emplace_back("%");
+            auto val_variable = any_cast<string>(li_conv[0].ptr);
+            store.emplace_back(100, rules[index].first, val_variable);
+        } else if (index == 17) {
+            store.emplace_back(100, rules[index].first, any_cast<string>(li_conv[1].ptr));
+        } else if (index == 12 || index == 14 || index == 16) {
+            type_expr te;
+            auto var_factor = any_cast<string>(li_conv[1].ptr);
+            auto & [li_var, li_op] = te;
+            switch (index) {
+            case 12:
+                li_op.emplace_back("*");
+                break;
+            case 14:
+                li_op.emplace_back("/");
+                break;
+            case 16:
+                li_op.emplace_back("%");
+                break;
+            }
+
+            li_var.emplace_back(var_factor);
+
+            store.emplace_back(100, rules[index].first, te);
+        } else if(index == 11||index == 13||index == 15) {
+            type_expr te = any_cast<type_expr>(li_conv[2].ptr);
+            auto& [li_var, li_op] = te;
+            
+            switch(index) {
+            case 11:
+                li_op.emplace_back("*");
+                break;
+            case 13: 
+                li_op.emplace_back("/");
+                break;
+            case 14: 
+                li_op.emplace_back("%");
+                break;
+            } 
+            li_var.emplace_back(any_cast<string>(li_conv[1].ptr));
+            
+            store.emplace_back(100, rules[index].first, te);
+        } else if(index == 10) {
+            auto new_var = gen_name::gen(); 
+            auto [li_var, li_op] = any_cast<type_expr>(li_conv[1].ptr);
+            // записать первую переменную 
+            li_atom.emplace_back(std::string("push ") + any_cast<string>(li_conv[0].ptr)); 
+            auto r_jt = li_var.rbegin();
+            for(auto r_it = li_op.rbegin(); r_it != li_op.rend(); ++r_it, ++r_jt) {
+                li_atom.emplace_back(std::string("push ") + *r_jt); // переменная 
+                li_atom.emplace_back(*r_it); // знак
+            }
+            li_atom.emplace_back(std::string("pop ") + new_var);
+            store.emplace_back(100, rules[index].first, new_var);
+        } else if (index == 9) {
+            store.emplace_back(100, rules[index].first, any_cast<string>(li_conv[0].ptr));
+        } else if(index == 8 || index == 6) {
+            type_expr te;
+            auto&[li_var, li_op] = te;
+            switch(index) {
+            case 6:
+                li_op.emplace_back("+");
+                break;
+            case 8:
+                li_op.emplace_back("-");
+                break;
+            }
+            li_var.emplace_back(any_cast<string>(li_conv[1].ptr));
+
+            store.emplace_back(100, rules[index].first, te);
+        } else if(index == 5 || index == 7) {
+            type_expr te = any_cast<type_expr>(li_conv[2].ptr);
+            auto &[li_var, li_op] = te;
+            switch(index) {
+            case 5:
+                li_op.emplace_back("+");
+                break;
+            case 7:
+                li_op.emplace_back("-");
+                break;
+            }
+            li_var.emplace_back(any_cast<string>(li_conv[1].ptr));
+            
+            store.emplace_back(100, rules[index].first, te);
+        } else if (index == 4) {
+            auto new_var = gen_name::gen(); 
+            auto [li_var, li_op] = any_cast<type_expr>(li_conv[1].ptr);
+            // записать первую переменную 
+            li_atom.emplace_back(std::string("push ") + any_cast<string>(li_conv[0].ptr)); 
+            auto r_jt = li_var.rbegin();
+            for(auto r_it = li_op.rbegin(); r_it != li_op.rend(); ++r_it, ++r_jt) {
+                li_atom.emplace_back(std::string("push ") + *r_jt); // переменная 
+                li_atom.emplace_back(*r_it); // знак
+            }
+            li_atom.emplace_back(std::string("pop ") + new_var);
+            store.emplace_back(100, rules[index].first, new_var);
+        } else if (index == 3) {
+            store.emplace_back(100, rules[index].first, any_cast<string>(li_conv[0].ptr));
+        } else if (index == 35) {
+            for(auto& val : any_cast<vector<string>>(li_conv[0].ptr)) {
+                li_atom.emplace_back("read");
+                li_atom.emplace_back(std::string("pop ") + val);
+            }
+            store.emplace_back(100, rules[index].first, std::any{});
+        } else if(index == 27) {
+            store.emplace_back(100, rules[index].first, any_cast<string>(li_conv[0].ptr));
+        } else if(index == 26) {
+            store.emplace_back(100, rules[index].first, any_cast<string>(li_conv[0].ptr));
+        } else if(index == 25) {
+            li_atom.emplace_back(std::string("push ") + any_cast<string>(li_conv[0].ptr));
+            li_atom.emplace_back(std::string("pop ") + any_cast<string>(li_conv[2].ptr));
+            store.emplace_back(100, rules[index].first, any_cast<string>(li_conv[2].ptr));
+        } else if (index == 24) {
+            li_atom.emplace_back(std::string("push ") + any_cast<string>(li_conv[1].ptr));
+            li_atom.emplace_back(std::string("pop ") + any_cast<string>(li_conv[3].ptr));
+            store.emplace_back(100, rules[index].first, any{});
+        } else if(index == 43) {
+            store.emplace_back(100, rules[index].first, any_cast<string>(li_conv[0].ptr));
+        } else if (index == 41) {
+            li_atom.emplace_back(std::string("push ") + any_cast<string>(li_conv[1].ptr));
+            li_atom.emplace_back("write");
+            store.emplace_back(100, rules[index].first, std::any{});
+        } else if(index == 39) {
+            std::vector<string> list_expr;
+            list_expr.emplace_back(any_cast<string>(li_conv[2].ptr));
+            list_expr.emplace_back(any_cast<string>(li_conv[0].ptr));
+            store.emplace_back(100, rules[index].first, list_expr);
+        } else if (index == 38) {
+            auto list_expr = any_cast<vector<string>>(li_conv[2].ptr);
+            list_expr.emplace_back(any_cast<string>(li_conv[0].ptr));
+            store.emplace_back(100, rules[index].first, list_expr);
+        } else if (index == 37) {
+            auto li_expr = any_cast<vector<string>>(li_conv[1].ptr);
+            for(auto r_it = li_expr.rbegin(); r_it != li_expr.rend(); ++r_it) {
+                li_atom.emplace_back(std::string("push ") + *r_it);
+                li_atom.emplace_back("write");
+            }
+            store.emplace_back(100, rules[index].first, std::any{});
+        } else {
+            store.emplace_back(100, rules[index].first, std::any{});
         }
     }
 
     decltype(auto) get_atoms() noexcept {
         return li_atom;
     } 
-
 
     void Convolution()
     {
@@ -432,13 +442,18 @@ public:
             store.pop_back();
         }
 
+        vector<data_token> vec_tmp;
 
+        for(auto& el : temp) {
+            vec_tmp.emplace_back(std::move(el));
+        }
+        
         for (size_t i = 0; i < rules.size(); ++i)
         {
             if (CheckRule(temp, rules[i].second))
             {
-                create_token(i, temp);
-                store.emplace_back(100, rules[i].first, std::any{});
+                create_token(i, vec_tmp);
+    
                 return;
             }
         }
@@ -530,6 +545,8 @@ void Syntax::ClassificationFunction()
             {{_lc1_}, {0}},
             {{_nont_default_}, {0}},
             {{_nont_colon_}, {0}},
+            {{_Op_lvl1}, 0},
+            {{_Op_lvl2}, 0},
             {{_Bottom_}, {0}}
     };
 }
@@ -558,6 +575,12 @@ void Syntax::RuleInitialisation()
 
     rules[6].first = _E_list_;
     rules[6].second = {El[_bin_sum], El[_Term_]};
+
+//    rules[7].first = _Op_lvl1;
+//    rules[7].second = {El[_bin_sub_]};
+
+//    rules[8].first = _Op_lvl1;
+//    rules[8].second = {El[_bin_sum]};
 
     rules[7].first = _E_list_;
     rules[7].second = {El[_bin_sub_], El[_Term_], El[_E_list_]};

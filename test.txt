@@ -1,15 +1,20 @@
-123
-12
-45
-10
-%
-*
-433
-v1
-10
-%
-466
+push 78
+push 123
 /
+push r2
 *
-*
-*
+pop v0
+push 44
+push 33
+/
+pop v1
+push 45
+push v1
++
+pop v2
+push v0
+write
+push v2
+write
+push 10
+write
